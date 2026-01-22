@@ -304,8 +304,10 @@ textarea {
   transition: border-color var(--transition-fast);
 }
 
-.upload-preview:hover {
+.upload-preview:hover,
+.upload-preview.drag-over {
   border-color: var(--color-accent);
+  background: rgba(224, 80, 128, 0.05);
 }
 
 .upload-preview input[type="file"] {
