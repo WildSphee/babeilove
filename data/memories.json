@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "config": {
+    "relationshipStartDate": null,
+    "timelineOrder": "newest-first",
+    "title": "Our Story",
+    "subtitle": null
+  },
+  "memories": [
+    {
+      "id": "5643e47c-5fda-4245-8b0d-aa47503bc537",
+      "mediaPath": "sticker2.mov",
+      "mediaType": "video",
+      "mimeType": "video/quicktime",
+      "caption": "",
+      "date": "2026-01-22",
+      "createdAt": "2026-01-22T16:50:32.472Z",
+      "updatedAt": "2026-01-22T16:50:32.472Z",
+      "fileSize": 13649124,
+      "imported": true
+    },
+    {
+      "id": "f411b8dd-8bbc-4754-8d81-3409b340b245",
+      "mediaPath": "sticker3.mov",
+      "mediaType": "video",
+      "mimeType": "video/quicktime",
+      "caption": "",
+      "date": "2026-01-22",
+      "createdAt": "2026-01-22T16:50:32.474Z",
+      "updatedAt": "2026-01-22T16:50:32.474Z",
+      "fileSize": 8807012,
+      "imported": true
+    },
+    {
+      "id": "4c9c1f3d-8bab-4ad8-b1ab-60f028d01a13",
+      "mediaPath": "stickerwalpha.mov",
+      "mediaType": "video",
+      "mimeType": "video/quicktime",
+      "caption": "",
+      "date": "2026-01-22",
+      "createdAt": "2026-01-22T16:50:32.475Z",
+      "updatedAt": "2026-01-22T16:50:32.475Z",
+      "fileSize": 34245200,
+      "imported": true
+    },
+    {
+      "id": "157ccdc1-bcc9-4cac-af70-5c388a362165",
+      "mediaPath": "unnamed.jpg",
+      "mediaType": "image",
+      "mimeType": "image/jpeg",
+      "caption": "",
+      "date": "2026-01-22",
+      "createdAt": "2026-01-22T16:50:32.477Z",
+      "updatedAt": "2026-01-22T16:50:32.477Z",
+      "fileSize": 336148,
+      "imported": true
+    }
+  ]
+}
