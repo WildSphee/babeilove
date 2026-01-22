@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: Couple's Diary API
+  description: REST API for the private couple's diary and media timeline application
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: API base path
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+
+  schemas:
+    Memory:
+      type: object
+      required:
+        - id
+        - mediaPath
+        - mediaType
+        - mimeType
+        - date
+        - createdAt
+        - updatedAt
+        - fileSize
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        mediaPath:
+          type: string
+          example: "550e8400-e29b-41d4-a716-446655440000.jpg"
+        mediaType:
+          type: string
+          enum: [image, video]
+        mimeType:
+          type: string
+          enum: [image/jpeg, image/png, video/mp4, video/quicktime]
+        caption:
+          type: string
+          maxLength: 2000
+          example: "Our first date"
+        date:
+          type: string
+          format: date
+          example: "2026-01-15"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        fileSize:
+          type: integer
+          example: 336148
+        imported:
+          type: boolean
+          default: false
+
+    MemoryCreate:
+      type: object
+      required:
+        - date
+      properties:
+        caption:
+          type: string
+          maxLength: 2000
+        date:
+          type: string
+          format: date
+
+    MemoryUpdate:
+      type: object
+      properties:
+        caption:
+          type: string
+          maxLength: 2000
+        date:
+          type: string
+          format: date
+
+    Config:
+      type: object
+      properties:
+        relationshipStartDate:
+          type: string
+          format: date
+          example: "2020-01-15"
+        timelineOrder:
+          type: string
+          enum: [newest-first, oldest-first]
+          default: newest-first
+        title:
+          type: string
+          example: "Our Story"
+        subtitle:
+          type: string
+          example: "Every moment with you"
+
+    TimelineResponse:
+      type: object
+      required:
+        - memories
+        - config
+        - stats
+      properties:
+        memories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Memory'
+        config:
+          $ref: '#/components/schemas/Config'
+        stats:
+          type: object
+          properties:
+            totalMemories:
+              type: integer
+            daysTogether:
+              type: integer
+              nullable: true
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AuthStatus:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        username:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+security:
+  - sessionAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthStatus'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      summary: End user session
+      responses:
+        '200':
+          description: Logout successful
+
+  /auth/status:
+    get:
+      summary: Check authentication status
+      security: []
+      responses:
+        '200':
+          description: Authentication status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthStatus'
+
+  /timeline:
+    get:
+      summary: Get full timeline with memories and config
+      parameters:
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [newest-first, oldest-first]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Timeline data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimelineResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memories:
+    post:
+      summary: Upload a new memory
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - date
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Media file (max 100MB)
+                caption:
+                  type: string
+                date:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Memory created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+        '400':
+          description: Invalid file type or size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+
+  /memories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      summary: Get a single memory
+      responses:
+        '200':
+          description: Memory details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+        '404':
+          description: Memory not found
+
+    patch:
+      summary: Update memory caption or date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryUpdate'
+      responses:
+        '200':
+          description: Memory updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+        '404':
+          description: Memory not found
+
+    delete:
+      summary: Delete memory and media file
+      responses:
+        '204':
+          description: Memory deleted
+        '404':
+          description: Memory not found
+
+  /config:
+    get:
+      summary: Get application configuration
+      responses:
+        '200':
+          description: Configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+
+    patch:
+      summary: Update configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Config'
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+
+  /events:
+    get:
+      summary: Server-Sent Events for real-time updates
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  Events:
+                  - memory:created - New memory added
+                  - memory:updated - Memory edited
+                  - memory:deleted - Memory removed
+
+                  Data format: JSON with memory object or id
+
+  /media/{filename}:
+    get:
+      summary: Serve media file
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Media file
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+            video/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: File not found
