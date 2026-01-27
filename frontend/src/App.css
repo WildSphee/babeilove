@@ -15,9 +15,11 @@
 .parallax-layer {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
+  filter: blur(40px);
   opacity: 0.6;
   will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .layer-1 {
@@ -55,7 +57,8 @@
 .gradient-overlay {
   position: absolute;
   inset: 0;
-  transition: background 0.3s ease;
+  will-change: background;
+  transform: translateZ(0);
 }
 
 /* ============ Light Streams ============ */
@@ -78,14 +81,12 @@
     rgba(255, 255, 255, 0.8) 80%,
     transparent 100%
   );
-  transform: rotate(25deg);
+  transform: rotate(25deg) translateZ(0);
   animation: streamFlow 8s linear infinite;
   opacity: 0;
   filter: blur(1px);
-  box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.5),
-    0 0 20px rgba(244, 114, 182, 0.3),
-    0 0 40px rgba(192, 132, 252, 0.2);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+  will-change: transform, opacity;
 }
 
 .stream-1 {
@@ -205,7 +206,7 @@
 }
 
 .hero h1 {
-  font-family: 'Lonely Study', cursive;
+  font-family: 'Lonely Study', Georgia, serif;
   font-size: clamp(3.5rem, 12vw, 7rem);
   font-weight: normal;
   color: #1f2937;
@@ -307,7 +308,7 @@
 }
 
 .footer-note p {
-  font-family: 'Papernotes', cursive;
+  font-family: 'Papernotes', Georgia, serif;
   font-size: clamp(1.5rem, 4vw, 2.4rem);
   max-width: 700px;
   margin: 0 auto;

@@ -24,8 +24,16 @@ function App() {
   }, [])
 
   useEffect(() => {
+    let ticking = false
+
     const handleScroll = () => {
-      setScrollY(window.scrollY)
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrollY(window.scrollY)
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
