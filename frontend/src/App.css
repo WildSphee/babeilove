@@ -1,0 +1,340 @@
+.app {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ============ Parallax Background ============ */
+.parallax-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fdf2f8 0%, #faf5ff 50%, #f0f9ff 100%);
+}
+
+.parallax-layer {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  will-change: transform;
+}
+
+.layer-1 {
+  width: 600px;
+  height: 600px;
+  top: -200px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.4) 0%, transparent 70%);
+}
+
+.layer-2 {
+  width: 500px;
+  height: 500px;
+  top: 30%;
+  right: -150px;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.4) 0%, transparent 70%);
+}
+
+.layer-3 {
+  width: 700px;
+  height: 700px;
+  bottom: -300px;
+  left: 20%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, transparent 70%);
+}
+
+.layer-4 {
+  width: 400px;
+  height: 400px;
+  top: 60%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(251, 113, 133, 0.35) 0%, transparent 70%);
+}
+
+.gradient-overlay {
+  position: absolute;
+  inset: 0;
+  transition: background 0.3s ease;
+}
+
+/* ============ Light Streams ============ */
+.light-streams {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.light-stream {
+  position: absolute;
+  width: 2px;
+  height: 200%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 20%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.8) 80%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  animation: streamFlow 8s linear infinite;
+  opacity: 0;
+  filter: blur(1px);
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(244, 114, 182, 0.3),
+    0 0 40px rgba(192, 132, 252, 0.2);
+}
+
+.stream-1 {
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 7s;
+}
+
+.stream-2 {
+  left: 25%;
+  animation-delay: -2s;
+  animation-duration: 9s;
+  width: 3px;
+}
+
+.stream-3 {
+  left: 45%;
+  animation-delay: -4s;
+  animation-duration: 6s;
+}
+
+.stream-4 {
+  left: 60%;
+  animation-delay: -1s;
+  animation-duration: 10s;
+  width: 1px;
+}
+
+.stream-5 {
+  left: 75%;
+  animation-delay: -5s;
+  animation-duration: 8s;
+  width: 2px;
+}
+
+.stream-6 {
+  left: 90%;
+  animation-delay: -3s;
+  animation-duration: 7s;
+}
+
+@keyframes streamFlow {
+  0% {
+    transform: rotate(25deg) translateY(-100%);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  95% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(25deg) translateY(50%);
+    opacity: 0;
+  }
+}
+
+/* Floating particles */
+.parallax-bg::before,
+.parallax-bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  animation: float 20s infinite ease-in-out;
+}
+
+.parallax-bg::before {
+  width: 300px;
+  height: 300px;
+  top: 20%;
+  left: 60%;
+  background: radial-gradient(circle, rgba(253, 186, 116, 0.25) 0%, transparent 70%);
+  animation-delay: -5s;
+}
+
+.parallax-bg::after {
+  width: 250px;
+  height: 250px;
+  top: 70%;
+  right: 30%;
+  background: radial-gradient(circle, rgba(167, 243, 208, 0.25) 0%, transparent 70%);
+  animation-delay: -10s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+/* ============ Content Layer ============ */
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============ Hero Section ============ */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 3rem;
+  text-align: center;
+}
+
+.hero-content {
+  margin-bottom: 3rem;
+}
+
+.hero h1 {
+  font-family: 'Lonely Study', cursive;
+  font-size: clamp(3.5rem, 12vw, 7rem);
+  font-weight: normal;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #831843 0%, #6b21a8 50%, #1e40af 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-family: 'Papernotes', sans-serif;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  color: #6b7280;
+  font-weight: normal;
+}
+
+/* Scroll hint */
+.scroll-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  animation: fadeInUp 1s ease 0.5s both;
+}
+
+.scroll-arrow {
+  width: 24px;
+  height: 24px;
+  border-right: 2px solid #d1d5db;
+  border-bottom: 2px solid #d1d5db;
+  transform: rotate(45deg);
+  animation: bounce 2s infinite;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: rotate(45deg) translateY(0);
+  }
+  40% {
+    transform: rotate(45deg) translateY(8px);
+  }
+  60% {
+    transform: rotate(45deg) translateY(4px);
+  }
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 768px) {
+  .parallax-layer {
+    filter: blur(40px);
+    opacity: 0.5;
+  }
+
+  .layer-1 {
+    width: 300px;
+    height: 300px;
+  }
+
+  .layer-2 {
+    width: 250px;
+    height: 250px;
+  }
+
+  .layer-3 {
+    width: 350px;
+    height: 350px;
+  }
+
+  .layer-4 {
+    width: 200px;
+    height: 200px;
+  }
+
+  .hero {
+    min-height: 80vh;
+    padding: 2rem;
+  }
+}
+
+/* ============ Footer Note ============ */
+.footer-note {
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.footer-note p {
+  font-family: 'Loverine', cursive;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-style: italic;
+  color: #9ca3af;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+/* ============ Reduced Motion ============ */
+@media (prefers-reduced-motion: reduce) {
+  .parallax-layer,
+  .parallax-bg::before,
+  .parallax-bg::after {
+    animation: none;
+  }
+
+  .light-stream {
+    animation: none;
+    opacity: 0.3;
+  }
+
+  .scroll-arrow {
+    animation: none;
+  }
+
+  .scroll-hint {
+    animation: none;
+  }
+}

@@ -1,0 +1,46 @@
+/* Custom Fonts */
+
+@font-face {
+  font-family: 'Lonely Study';
+  src: url('/fonts/Lonely Study.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Loverine';
+  src: url('/fonts/Loverine.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Papernotes';
+  src: url('/fonts/Papernotes.woff2') format('woff2'),
+       url('/fonts/PapernotesRegular.woff') format('woff'),
+       url('/fonts/Papernotes.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Papernotes';
+  src: url('/fonts/Papernotes Bold.woff2') format('woff2'),
+       url('/fonts/PapernotesBold.woff') format('woff'),
+       url('/fonts/Papernotes Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Papernotes Sketch';
+  src: url('/fonts/Papernotes Sketch.woff2') format('woff2'),
+       url('/fonts/Papernotes Sketch.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
