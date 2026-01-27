@@ -99,8 +99,8 @@ function App() {
       <div className="content">
         <header className="hero">
           <div className="hero-content">
-            <h1>Our Love Story :)</h1>
-            <p className="hero-subtitle">Our beautiful memories together</p>
+            <h1>Our Love Story</h1>
+            <p className="hero-subtitle">A little recap on how far we'd come :)</p>
           </div>
           <div className="scroll-hint">
             <span>Scroll to explore</span>
@@ -112,7 +112,8 @@ function App() {
 
         {/* Footer note */}
         <footer className="footer-note">
-          <p>I know it hasn't been easy, but thanks for giving us all :)</p>
+          <p>Here's to another amazing year with you <br></br> know it hasn't been easy, thanks for giving us all :)
+          <br></br>Love you always - Reagan</p>
         </footer>
       </div>
 
