@@ -76,28 +76,44 @@ function App() {
 
         <div
           className="parallax-layer layer-1"
-          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.002) * 80}px) translateX(${Math.cos(scrollY * 0.001) * 40}px)` }}
         />
         <div
           className="parallax-layer layer-2"
-          style={{ transform: `translateY(${scrollY * 0.2}px) rotate(${scrollProgress * 30}deg)` }}
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.0015 + 1) * 100}px) rotate(${scrollProgress * 30}deg)` }}
         />
         <div
           className="parallax-layer layer-3"
-          style={{ transform: `translateY(${scrollY * 0.15}px)` }}
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.0025 + 2) * 70}px) translateX(${Math.sin(scrollY * 0.001) * 50}px)` }}
         />
         <div
           className="parallax-layer layer-4"
-          style={{ transform: `translateY(${scrollY * 0.25}px) rotate(${-scrollProgress * 20}deg)` }}
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.002 + 3) * 90}px) rotate(${-scrollProgress * 20}deg)` }}
+        />
+        <div
+          className="parallax-layer layer-5"
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.0018 + 4) * 85}px) translateX(${Math.cos(scrollY * 0.0012) * 45}px)` }}
+        />
+        <div
+          className="parallax-layer layer-6"
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.0022 + 5) * 75}px) rotate(${scrollProgress * 25}deg)` }}
+        />
+        <div
+          className="parallax-layer layer-7"
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.0012 + 6) * 95}px) translateX(${Math.sin(scrollY * 0.0015) * 35}px)` }}
+        />
+        <div
+          className="parallax-layer layer-8"
+          style={{ transform: `translateY(${Math.sin(scrollY * 0.002 + 7) * 80}px) rotate(${-scrollProgress * 15}deg)` }}
         />
         <div
           className="gradient-overlay"
           style={{
             background: `linear-gradient(
               ${135 + scrollProgress * 45}deg,
-              hsla(${340 + scrollProgress * 30}, 80%, 85%, 0.8) 0%,
-              hsla(${280 + scrollProgress * 40}, 70%, 88%, 0.8) 50%,
-              hsla(${220 + scrollProgress * 30}, 75%, 90%, 0.8) 100%
+              hsla(${340 + scrollProgress * 30}, 80%, 85%, 0.4) 0%,
+              hsla(${280 + scrollProgress * 40}, 70%, 88%, 0.4) 50%,
+              hsla(${220 + scrollProgress * 30}, 75%, 90%, 0.4) 100%
             )`
           }}
         />
@@ -108,7 +124,7 @@ function App() {
         <header className="hero">
           <div className="hero-content">
             <h1>Our Love Story</h1>
-            <p className="hero-subtitle">A little recap on how far we'd come :)</p>
+            <p className="hero-subtitle">Hey babe, lets do a little walk down on memory lane and see how far we'd come :)</p>
           </div>
           <div className="scroll-hint">
             <span>Scroll to explore</span>

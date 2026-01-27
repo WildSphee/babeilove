@@ -1,110 +1,127 @@
 [
   {
-    "id": 1,
+    "image": "video22-01-2026.mp4",
+    "date": "2026-01-22",
+    "description": "Sweetest birthday I'd had, loved the flowers :)"
+  },
+  {
+    "image": "-6296061562610978184_121.jpg",
+    "date": "2026-01-17",
+    "description": "PRATA night at JB"
+  },
+  {
     "image": "-6296061562610978186_121.jpg",
-    "date": "2026-01-20",
+    "date": "2026-01-16",
     "description": "GOKART IN JB!!! THANKS FOR PLANNING IT WAS SO FUN!!"
   },
   {
-    "id": 2,
     "image": "20260116_131332.jpg",
     "date": "2026-01-16",
     "description": "JB trip selfie at the cafe~"
   },
   {
-    "id": 3,
+    "image": "5_6280700551487299096.MOV",
+    "date": "2026-01-13",
+    "description": "We enjoying the poetic symmetry of the classic indian songs"
+  },
+  {
+    "image": "-6276202226539760963_119.jpg",
+    "date": "2026-01-11",
+    "description": "Thai food near fortune centre after our gym session"
+  },
+  {
     "image": "20260106_180108.jpg",
     "date": "2026-01-06",
     "description": "Still the cutest sticker yet :)"
   },
   {
-    "id": 4,
     "image": "-6253770995332222106_119.jpg",
     "date": "2026-01-03",
     "description": "TOUR DE SINGAPURA! Didn't know Justin Trudeau ancestors are buried in Fort Canning"
   },
   {
-    "id": 5,
     "image": "-6253770995332222115_119.jpg",
     "date": "2026-01-03",
     "description": "I picked you up from the airport after your trip to GZ"
   },
   {
-    "id": 6,
     "image": "-6215377758687267661_121.jpg",
     "date": "2025-12-21",
     "description": "Taking picture with creepy santa over at Great Worlds"
   },
   {
-    "id": 7,
     "image": "-6195065415235472732_119.jpg",
     "date": "2025-12-14",
     "description": "I won't trade anything for you babe <3"
   },
   {
-    "id": 8,
     "image": "-6195065415235472735_119.jpg",
     "date": "2025-12-14",
-    "description": "This one held a special place in my heart~"
+    "description": "This one holds a special place in my heart~"
   },
   {
-    "id": 9,
     "image": "20251210_190244.jpg",
     "date": "2025-12-10",
     "description": "The night before you gave me the idea to talk to TYA for IT solutioning, one of the best moves I made hehe"
   },
   {
-    "id": 10,
     "image": "-6174997021631122465_119.jpg",
     "date": "2025-12-07",
     "description": "Potty"
   },
   {
-    "id": 11,
     "image": "-6147780247668067156_121.jpg",
     "date": "2025-11-28",
     "description": "We went Nickles for pastries, always thought ur so cute in this pic"
   },
   {
-    "id": 12,
     "image": "-6131738029421431842_121.jpg",
     "date": "2025-11-23",
     "description": "You have a certain affinity of taking this kind of upclose pics, UNGLAM AF"
   },
   {
-    "id": 13,
     "image": "-6131738029421431900_121.jpg",
     "date": "2025-11-23",
     "description": "Photobooth after italian dinner, cute af"
   },
   {
-    "id": 14,
+    "image": "20251122_162937.jpg",
+    "date": "2025-11-22",
+    "description": "Matching t-shirts"
+  },
+  {
     "image": "-6124953638951128130_119.jpg",
     "date": "2025-11-21",
     "description": "At plaza sing! We argued earlier that day but I surprised you with flowers :)"
   },
   {
-    "id": 15,
+    "image": "-6109631532101209713_119.jpg",
+    "date": "2025-11-15",
+    "description": "idk the context of this one..."
+  },
+  {
     "image": "gym_omote.jpg",
     "date": "2025-11-13",
     "description": "We're heading to Omote after gym. not gonna doubt ur restaurant recommendations again"
   },
   {
-    "id": 16,
     "image": "-6334871677371616097_119.jpg",
     "date": "2025-10-26",
     "description": "We went to karaoke that day, kissed you on the overhead bridge in Orchard"
   },
   {
-    "id": 17,
     "image": "-6321066673229729104_119.jpg",
     "date": "2025-10-21",
     "description": "One of the earlier selfies we'd taken, I'd always loved your jean shorts"
   },
   {
-    "id": 18,
     "image": "-6321066673229729112_119.jpg",
     "date": "2025-10-12",
     "description": "Your birthday celebration feat. beef wellington and my fever :)"
+  },
+  {
+    "image": "Screenshot_20250912_225618_Brave.png",
+    "date": "2025-09-14",
+    "description": "Where it all began, a single movie ticket~"
   }
 ]

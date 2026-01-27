@@ -10,6 +10,11 @@ function formatDate(dateStr) {
   })
 }
 
+function isVideoFile(filename) {
+  const videoExtensions = ['.mp4', '.mov', '.webm', '.ogg']
+  return videoExtensions.some(ext => filename.toLowerCase().endsWith(ext))
+}
+
 function Lightbox({ isOpen, memories, currentIndex, onClose, onPrevious, onNext }) {
   const videoRef = useRef(null)
   const memory = memories[currentIndex]
@@ -52,7 +57,7 @@ function Lightbox({ isOpen, memories, currentIndex, onClose, onPrevious, onNext 
 
   if (!memory) return null
 
-  const isVideo = memory.mediaType === 'video'
+  const isVideo = isVideoFile(memory.image || '')
   const hasPrevious = currentIndex > 0
   const hasNext = currentIndex < memories.length - 1
 
@@ -83,6 +88,9 @@ function Lightbox({ isOpen, memories, currentIndex, onClose, onPrevious, onNext 
             className="lightbox-video"
             src={memory.mediaPath}
             controls
+            autoPlay
+            loop
+            playsInline
           />
         ) : (
           <img

@@ -15,43 +15,83 @@
 .parallax-layer {
   position: absolute;
   border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.6;
+  filter: blur(30px);
+  opacity: 0.7;
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
+/* Pink - top left */
 .layer-1 {
-  width: 600px;
-  height: 600px;
-  top: -200px;
-  left: -100px;
-  background: radial-gradient(circle, rgba(244, 114, 182, 0.4) 0%, transparent 70%);
-}
-
-.layer-2 {
   width: 500px;
   height: 500px;
-  top: 30%;
-  right: -150px;
-  background: radial-gradient(circle, rgba(192, 132, 252, 0.4) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.6) 0%, transparent 70%);
 }
 
+/* Purple - right side */
+.layer-2 {
+  width: 450px;
+  height: 450px;
+  top: 20%;
+  right: -100px;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.6) 0%, transparent 70%);
+}
+
+/* Blue - center left */
 .layer-3 {
-  width: 700px;
-  height: 700px;
-  bottom: -300px;
-  left: 20%;
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, transparent 70%);
+  width: 550px;
+  height: 550px;
+  top: 50%;
+  left: -150px;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.55) 0%, transparent 70%);
 }
 
+/* Coral - bottom right */
 .layer-4 {
   width: 400px;
   height: 400px;
-  top: 60%;
-  left: -100px;
-  background: radial-gradient(circle, rgba(251, 113, 133, 0.35) 0%, transparent 70%);
+  top: 70%;
+  right: -50px;
+  background: radial-gradient(circle, rgba(251, 113, 133, 0.55) 0%, transparent 70%);
+}
+
+/* Cyan/Teal - top right */
+.layer-5 {
+  width: 480px;
+  height: 480px;
+  top: -50px;
+  right: 10%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.5) 0%, transparent 70%);
+}
+
+/* Indigo - center */
+.layer-6 {
+  width: 520px;
+  height: 520px;
+  top: 40%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.5) 0%, transparent 70%);
+}
+
+/* Sky blue - bottom left */
+.layer-7 {
+  width: 450px;
+  height: 450px;
+  top: 80%;
+  left: 10%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.5) 0%, transparent 70%);
+}
+
+/* Violet - bottom center */
+.layer-8 {
+  width: 400px;
+  height: 400px;
+  top: 90%;
+  left: 50%;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.5) 0%, transparent 70%);
 }
 
 .gradient-overlay {
@@ -303,7 +343,12 @@
 
 /* ============ Footer Note ============ */
 .footer-note {
-  padding: 6rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 3rem 2rem 6rem;
   text-align: center;
 }
 
