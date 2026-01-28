@@ -148,25 +148,6 @@
   animation-duration: 6s;
 }
 
-.stream-4 {
-  left: 60%;
-  animation-delay: -1s;
-  animation-duration: 10s;
-  width: 1px;
-}
-
-.stream-5 {
-  left: 75%;
-  animation-delay: -5s;
-  animation-duration: 8s;
-  width: 2px;
-}
-
-.stream-6 {
-  left: 90%;
-  animation-delay: -3s;
-  animation-duration: 7s;
-}
 
 @keyframes streamFlow {
   0% {
@@ -188,41 +169,6 @@
   }
 }
 
-/* Floating particles */
-.parallax-bg::before,
-.parallax-bg::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  animation: float 20s infinite ease-in-out;
-}
-
-.parallax-bg::before {
-  width: 300px;
-  height: 300px;
-  top: 20%;
-  left: 60%;
-  background: radial-gradient(circle, rgba(253, 186, 116, 0.25) 0%, transparent 70%);
-  animation-delay: -5s;
-}
-
-.parallax-bg::after {
-  width: 250px;
-  height: 250px;
-  top: 70%;
-  right: 30%;
-  background: radial-gradient(circle, rgba(167, 243, 208, 0.25) 0%, transparent 70%);
-  animation-delay: -10s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-30px) scale(1.05);
-  }
-}
 
 /* ============ Content Layer ============ */
 .content {

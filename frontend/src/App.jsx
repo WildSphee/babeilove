@@ -69,9 +69,6 @@ function App() {
           <div className="light-stream stream-1" />
           <div className="light-stream stream-2" />
           <div className="light-stream stream-3" />
-          <div className="light-stream stream-4" />
-          <div className="light-stream stream-5" />
-          <div className="light-stream stream-6" />
         </div>
 
         <div
