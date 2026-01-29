@@ -211,6 +211,52 @@
   font-weight: normal;
 }
 
+/* ============ Time Counter ============ */
+.time-counter {
+  margin-top: 2.5rem;
+  animation: fadeInUp 1s ease 0.3s both;
+}
+
+.time-counter-label {
+  font-family: 'Papernotes', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.time-counter-values {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1rem, 4vw, 2.5rem);
+  flex-wrap: wrap;
+}
+
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.time-value {
+  font-family: 'Lonely Study', Georgia, serif;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: normal;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+.time-label {
+  font-family: 'Papernotes', sans-serif;
+  font-size: clamp(0.75rem, 2vw, 1rem);
+  color: #9ca3af;
+  text-transform: lowercase;
+  margin-top: 0.25rem;
+}
+
 /* Scroll hint */
 .scroll-hint {
   display: flex;
@@ -284,6 +330,18 @@
   .hero {
     min-height: 80vh;
     padding: 2rem;
+  }
+
+  .time-counter {
+    margin-top: 2rem;
+  }
+
+  .time-counter-values {
+    gap: 0.75rem;
+  }
+
+  .time-unit {
+    min-width: 50px;
   }
 }
 

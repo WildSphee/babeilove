@@ -5,15 +5,18 @@ import './App.css'
 
 function App() {
   const [memories, setMemories] = useState([])
+  const [config, setConfig] = useState(null)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [scrollY, setScrollY] = useState(0)
+  const [timeTogether, setTimeTogether] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
 
   useEffect(() => {
     fetch('/media/memories.json')
       .then(res => res.json())
       .then(data => {
-        const transformed = data.map(item => ({
+        setConfig(data.config)
+        const transformed = data.memories.map(item => ({
           ...item,
           mediaPath: `/media/${item.image}`,
           caption: item.description
@@ -22,6 +25,38 @@ function App() {
       })
       .catch(err => console.error('Failed to load memories:', err))
   }, [])
+
+  // Calculate time together
+  useEffect(() => {
+    if (!config?.relationshipStart) return
+
+    const calculateTimeTogether = () => {
+      const { date, time } = config.relationshipStart
+      const [hours, minutes] = time.split(':').map(Number)
+      const startDate = new Date(date)
+      startDate.setHours(hours, minutes, 0, 0)
+
+      const now = new Date()
+      const diff = now - startDate
+
+      if (diff < 0) {
+        setTimeTogether({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+        return
+      }
+
+      const seconds = Math.floor((diff / 1000) % 60)
+      const mins = Math.floor((diff / (1000 * 60)) % 60)
+      const hrs = Math.floor((diff / (1000 * 60 * 60)) % 24)
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+      setTimeTogether({ days, hours: hrs, minutes: mins, seconds })
+    }
+
+    calculateTimeTogether()
+    const interval = setInterval(calculateTimeTogether, 1000)
+
+    return () => clearInterval(interval)
+  }, [config])
 
   useEffect(() => {
     let ticking = false
@@ -120,8 +155,31 @@ function App() {
       <div className="content">
         <header className="hero">
           <div className="hero-content">
-            <h1>Our Love Story</h1>
-            <p className="hero-subtitle">Hey babe, lets do a little walk down on memory lane with me and see how far we'd come :)</p>
+            <h1>{config?.title || 'Our Love Story'}</h1>
+            <p className="hero-subtitle">{config?.subtitle || ''}</p>
+
+            {/* Time Together Counter */}
+            <div className="time-counter">
+              <p className="time-counter-label">Together for</p>
+              <div className="time-counter-values">
+                <div className="time-unit">
+                  <span className="time-value">{timeTogether.days}</span>
+                  <span className="time-label">days</span>
+                </div>
+                <div className="time-unit">
+                  <span className="time-value">{String(timeTogether.hours).padStart(2, '0')}</span>
+                  <span className="time-label">hours</span>
+                </div>
+                <div className="time-unit">
+                  <span className="time-value">{String(timeTogether.minutes).padStart(2, '0')}</span>
+                  <span className="time-label">minutes</span>
+                </div>
+                <div className="time-unit">
+                  <span className="time-value">{String(timeTogether.seconds).padStart(2, '0')}</span>
+                  <span className="time-label">seconds</span>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="scroll-hint">
             <span>Scroll to explore</span>
@@ -133,8 +191,7 @@ function App() {
 
         {/* Footer note */}
         <footer className="footer-note">
-          <p>Here's to another amazing year with you <br></br> know it hasn't been easy, thanks for giving us all :)
-          <br></br>Love you always - Reagan</p>
+          <p dangerouslySetInnerHTML={{ __html: config?.footnote || '' }} />
         </footer>
       </div>
 
