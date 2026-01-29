@@ -121,7 +121,7 @@ function App() {
         <header className="hero">
           <div className="hero-content">
             <h1>Our Love Story</h1>
-            <p className="hero-subtitle">Hey babe, lets do a little walk down on memory lane and see how far we'd come :)</p>
+            <p className="hero-subtitle">Hey babe, lets do a little walk down on memory lane with me and see how far we'd come :)</p>
           </div>
           <div className="scroll-hint">
             <span>Scroll to explore</span>
