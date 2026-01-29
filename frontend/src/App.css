@@ -1,6 +1,10 @@
 .app {
   min-height: 100vh;
   position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* ============ Parallax Background ============ */
