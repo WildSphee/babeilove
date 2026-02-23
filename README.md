@@ -11,7 +11,7 @@ A beautiful photo diary to capture and display our memories together.
 - Custom handwritten fonts
 - Mobile-friendly and touch-optimized
 
-## Quick Start
+## Quick Start on Linux
 
 ```bash
 ./start.sh
@@ -49,10 +49,10 @@ Then open http://localhost:5173
 - **Loverine** - Footer note
 
 ## Build for Production
-
+this script automatically git commit / git push and npm run for nginx
+perfect for republishing changes after updating the memory
 ```bash
-cd frontend
-npm run build
+sh update_and_build.sh
 ```
 
 Output will be in `frontend/dist/`.
