@@ -19,7 +19,10 @@ The frontend stays static. A separate Python Telegram bot can now manage the mem
 ./start.sh
 ```
 
-Then open http://localhost:5173
+This now starts both:
+
+- the Vite frontend at `http://localhost:5173`
+- the Telegram bot backend
 
 ## Telegram Backend
 
@@ -32,8 +35,9 @@ Backend files:
 
 - `backend/memory_bot.py` - Telegram bot entrypoint
 - `backend/storage.py` - file-backed memory storage and media management
-- `requirements.txt` - Python dependencies
-- `start_bot.sh` - local runner
+- `pyproject.toml` - Python project and dependency definition
+- `poetry.lock` - locked Python dependency versions
+- `start.sh` - local runner for both frontend and bot
 
 Supported bot flows:
 
@@ -59,7 +63,7 @@ sorry, you don't have access to this Telegram chatbot
 1. Install Python dependencies:
 
 ```bash
-pip install -r requirements.txt
+poetry install
 ```
 
 2. Add the bot token to the root `.env`:
@@ -67,22 +71,18 @@ pip install -r requirements.txt
 ```dotenv
 TELEGRAM_BOT_TOKEN=your_bot_token_here
 TELEGRAM_ALLOWED_USERNAMES=reagan_c,audikor
-POST_UPDATE_COMMAND=
+POST_UPDATE_COMMAND=./build.sh
 ```
 
-`POST_UPDATE_COMMAND` is optional. If you need the bot to rebuild or redeploy the frontend after each change, point it to an existing script such as `./build.sh` or `./update_and_build.sh`.
+By default, every successful memory create, edit, or delete triggers `./build.sh` so the frontend output is rebuilt for nginx. If you need a different deploy flow, override `POST_UPDATE_COMMAND` with another script such as `./update_and_build.sh`.
 
-3. Start the bot:
+3. Start the frontend and bot together:
 
 ```bash
-./start_bot.sh
+./start.sh
 ```
 
-Alternative:
-
-```bash
-python3 -m backend.memory_bot
-```
+`start.sh` launches the Telegram bot through `poetry run python -m backend.memory_bot`.
 
 ### Bot Usage
 

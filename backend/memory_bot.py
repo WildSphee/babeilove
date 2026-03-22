@@ -41,7 +41,7 @@ ALLOWED_USERNAMES = {
     for username in os.getenv('TELEGRAM_ALLOWED_USERNAMES', 'reagan_c,audikor').split(',')
     if username.strip()
 }
-POST_UPDATE_COMMAND = os.getenv('POST_UPDATE_COMMAND', '').strip()
+POST_UPDATE_COMMAND = os.getenv('POST_UPDATE_COMMAND', '').strip() or './build.sh'
 
 ACTION_NONE = 'none'
 ACTION_NEW_DATE = 'new_date'
