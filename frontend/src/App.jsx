@@ -5,7 +5,22 @@ import './App.css'
 
 const baseUrl = import.meta.env.BASE_URL || '/'
 const memoriesUrl = `${baseUrl}media/memories.json`
+const memoriesModuleUrl = `${baseUrl}media/memories.js`
 const mediaUrl = (filename) => `${baseUrl}media/${filename}`
+
+async function loadMemories() {
+  try {
+    const module = await import(/* @vite-ignore */ `${memoriesModuleUrl}?t=${Date.now()}`)
+    return module.default
+  } catch (error) {
+    console.warn('Falling back to media/memories.json because media/memories.js failed:', error)
+    const response = await fetch(memoriesUrl)
+    if (!response.ok) {
+      throw new Error(`Failed to load memories: HTTP ${response.status}`)
+    }
+    return await response.json()
+  }
+}
 
 function App() {
   const [memories, setMemories] = useState([])
@@ -16,13 +31,7 @@ function App() {
   const [timeTogether, setTimeTogether] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
 
   useEffect(() => {
-    fetch(memoriesUrl)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Failed to load memories: HTTP ${res.status}`)
-        }
-        return res.json()
-      })
+    loadMemories()
       .then(data => {
         setConfig(data.config)
         const transformed = data.memories.map(item => ({

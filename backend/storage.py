@@ -52,6 +52,7 @@ class MemoryStore:
         self.repo_root = repo_root
         self.media_dir = repo_root / 'frontend' / 'public' / 'media'
         self.memories_path = self.media_dir / 'memories.json'
+        self.memories_module_path = self.media_dir / 'memories.js'
         self._lock = threading.Lock()
         self.media_dir.mkdir(parents=True, exist_ok=True)
 
@@ -180,6 +181,10 @@ class MemoryStore:
             temp_handle.write(payload)
             temp_path = Path(temp_handle.name)
         os.replace(temp_path, self.memories_path)
+        self._write_module(data)
+
+    def sync_public_exports(self) -> None:
+        self._write_module(self._read_data())
 
     def _find_memory_dict(self, memories: list[dict[str, Any]], memory_id: str) -> dict[str, Any] | None:
         for memory in memories:
@@ -209,3 +214,10 @@ class MemoryStore:
         target_path = self.media_dir / filename
         if target_path.exists():
             target_path.unlink()
+
+    def _write_module(self, data: dict[str, Any]) -> None:
+        module_payload = 'export default ' + json.dumps(data, indent=2, ensure_ascii=False) + ';\n'
+        with NamedTemporaryFile('w', encoding='utf-8', delete=False, dir=self.memories_module_path.parent) as temp_handle:
+            temp_handle.write(module_payload)
+            temp_path = Path(temp_handle.name)
+        os.replace(temp_path, self.memories_module_path)
