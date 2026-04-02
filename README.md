@@ -16,13 +16,10 @@ The frontend stays static. A separate Python Telegram bot can now manage the mem
 ## Quick Start on Linux
 
 ```bash
-./start.sh
+./start_dev_fe
 ```
 
-This now starts both:
-
-- the Vite frontend at `http://localhost:5173`
-- the Telegram bot backend
+This starts the Vite frontend at `http://localhost:5234`.
 
 ## Telegram Backend
 
@@ -37,11 +34,12 @@ Backend files:
 - `backend/storage.py` - file-backed memory storage and media management
 - `pyproject.toml` - Python project and dependency definition
 - `poetry.lock` - locked Python dependency versions
-- `start.sh` - local runner for both frontend and bot
+- `start.sh` - root runner for the Telegram bot
+- `start_dev_fe` - frontend dev runner
 
 Supported bot flows:
 
-- `/list` shows every memory with the current media, date, filename, and `Edit` / `Delete` buttons
+- `/list` opens a paginated inline browser in one Telegram message, with in-place navigation and per-memory edit/delete actions
 - `/new` creates a new memory by asking for the date, description, and media upload
 - Edit actions support caption, date, and media replacement
 - Delete removes the memory entry and deletes the local media file when no other entry uses it
@@ -76,7 +74,7 @@ POST_UPDATE_COMMAND=./build.sh
 
 By default, every successful memory create, edit, or delete triggers `./build.sh` so the frontend output is rebuilt for nginx. If you need a different deploy flow, override `POST_UPDATE_COMMAND` with another script such as `./update_and_build.sh`.
 
-3. Start the frontend and bot together:
+3. Start the bot:
 
 ```bash
 ./start.sh
@@ -84,11 +82,17 @@ By default, every successful memory create, edit, or delete triggers `./build.sh
 
 `start.sh` launches the Telegram bot through `poetry run python -m backend.memory_bot`.
 
+4. Start the frontend dev server separately when needed:
+
+```bash
+./start_dev_fe
+```
+
 ### Bot Usage
 
-1. Send `/list` to review existing memories
-2. Press `Edit` under a memory to change its caption, date, or media
-3. Press `Delete` and confirm to remove a memory
+1. Send `/list` to open the paginated memory browser
+2. Tap a memory row to open its detail view inside the same Telegram message
+3. Use the inline buttons to edit caption, date, replace media, or delete the memory
 4. Send `/new` to create a new memory, then follow the prompts
 
 ## Adding Memories
