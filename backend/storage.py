@@ -141,6 +141,7 @@ class MemoryStore:
         filename = f'{prefix}-{timestamp}{normalized_ext}'
         target_path = self.media_dir / filename
         shutil.copy2(source_path, target_path)
+        self._set_public_permissions(target_path)
         return filename
 
     @staticmethod
@@ -181,6 +182,7 @@ class MemoryStore:
             temp_handle.write(payload)
             temp_path = Path(temp_handle.name)
         os.replace(temp_path, self.memories_path)
+        self._set_public_permissions(self.memories_path)
         self._write_module(data)
 
     def sync_public_exports(self) -> None:
@@ -221,3 +223,8 @@ class MemoryStore:
             temp_handle.write(module_payload)
             temp_path = Path(temp_handle.name)
         os.replace(temp_path, self.memories_module_path)
+        self._set_public_permissions(self.memories_module_path)
+
+    @staticmethod
+    def _set_public_permissions(path: Path) -> None:
+        path.chmod(0o644)
