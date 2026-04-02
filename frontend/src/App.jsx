@@ -3,6 +3,10 @@ import Gallery from './components/Gallery'
 import Lightbox from './components/Lightbox'
 import './App.css'
 
+const baseUrl = import.meta.env.BASE_URL || '/'
+const memoriesUrl = `${baseUrl}media/memories.json`
+const mediaUrl = (filename) => `${baseUrl}media/${filename}`
+
 function App() {
   const [memories, setMemories] = useState([])
   const [config, setConfig] = useState(null)
@@ -12,13 +16,18 @@ function App() {
   const [timeTogether, setTimeTogether] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
 
   useEffect(() => {
-    fetch('/media/memories.json')
-      .then(res => res.json())
+    fetch(memoriesUrl)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Failed to load memories: HTTP ${res.status}`)
+        }
+        return res.json()
+      })
       .then(data => {
         setConfig(data.config)
         const transformed = data.memories.map(item => ({
           ...item,
-          mediaPath: `/media/${item.image}`,
+          mediaPath: mediaUrl(item.image),
           caption: item.description
         }))
         setMemories(transformed)

@@ -10,11 +10,14 @@ from typing import Any
 
 from dotenv import load_dotenv
 from telegram import (
+    BotCommand,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     InputMediaDocument,
     InputMediaPhoto,
     InputMediaVideo,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
     Update,
 )
 from telegram.constants import ChatAction
@@ -59,6 +62,12 @@ ACTION_EDIT_CAPTION = 'edit_caption'
 ACTION_EDIT_DATE = 'edit_date'
 ACTION_EDIT_MEDIA = 'edit_media'
 NOOP_CALLBACK = 'noop'
+COMMANDS = [
+    BotCommand('list', 'Browse memories'),
+    BotCommand('new', 'Add a new memory'),
+    BotCommand('cancel', 'Cancel the current action'),
+    BotCommand('start', 'Show help and command buttons'),
+]
 
 store = MemoryStore(REPO_ROOT)
 
@@ -86,10 +95,31 @@ async def ensure_authorized(update: Update) -> bool:
     return False
 
 
+def build_command_reply_markup() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        [
+            [KeyboardButton('/list'), KeyboardButton('/new')],
+            [KeyboardButton('/cancel'), KeyboardButton('/start')],
+        ],
+        resize_keyboard=True,
+        is_persistent=True,
+        input_field_placeholder='Choose a command',
+    )
+
+
+async def reply_with_command_menu(message, text: str) -> None:
+    await message.reply_text(text, reply_markup=build_command_reply_markup())
+
+
+async def post_init(application: Application) -> None:
+    await application.bot.set_my_commands(COMMANDS)
+
+
 @require_authorized
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     clear_pending_action(context)
-    await update.effective_message.reply_text(
+    await reply_with_command_menu(
+        update.effective_message,
         'Commands:\n'
         '/list - browse memories with image/video preview\n'
         '/new - add a new memory\n'
@@ -100,7 +130,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 @require_authorized
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     clear_pending_action(context)
-    await update.effective_message.reply_text('Pending action cleared.')
+    await reply_with_command_menu(update.effective_message, 'Pending action cleared.')
 
 
 @require_authorized
@@ -108,7 +138,7 @@ async def list_memories(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     clear_pending_action(context)
     memories = store.list_memories()
     if not memories:
-        await update.effective_message.reply_text('No memories found.')
+        await reply_with_command_menu(update.effective_message, 'No memories found.')
         return
 
     await send_memory_browser(update.effective_message, context, page=0)
@@ -118,7 +148,7 @@ async def list_memories(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 async def new_memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     context.user_data['action'] = ACTION_NEW_DATE
     context.user_data['new_memory'] = {}
-    await update.effective_message.reply_text('Send the memory date in YYYY-MM-DD format.')
+    await reply_with_command_menu(update.effective_message, 'Send the memory date in YYYY-MM-DD format.')
 
 
 @require_authorized
@@ -131,28 +161,31 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             normalized = store.normalize_date(text)
             context.user_data['new_memory'] = {'date': normalized}
             context.user_data['action'] = ACTION_NEW_DESCRIPTION
-            await update.effective_message.reply_text('Send the description for this memory.')
+            await reply_with_command_menu(update.effective_message, 'Send the description for this memory.')
             return
 
         if action == ACTION_NEW_DESCRIPTION:
             if not text:
-                await update.effective_message.reply_text('Description cannot be empty. Send the description text.')
+                await reply_with_command_menu(
+                    update.effective_message,
+                    'Description cannot be empty. Send the description text.',
+                )
                 return
             context.user_data.setdefault('new_memory', {})['description'] = text
             context.user_data['action'] = ACTION_NEW_MEDIA
-            await update.effective_message.reply_text('Now send the photo or video for this memory.')
+            await reply_with_command_menu(update.effective_message, 'Now send the photo or video for this memory.')
             return
 
         if action == ACTION_EDIT_CAPTION:
             pending_id = context.user_data.get('memory_id')
             if not pending_id:
                 clear_pending_action(context)
-                await update.effective_message.reply_text('The edit session expired. Refresh with /list.')
+                await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
                 return
             updated = store.update_caption(pending_id, text)
             page = int(context.user_data.get('browser_page', 0))
             clear_pending_action(context)
-            await update.effective_message.reply_text(f'Caption updated for {updated.date}.')
+            await reply_with_command_menu(update.effective_message, f'Caption updated for {updated.date}.')
             await refresh_or_send_memory_browser(update.effective_message, context, page=page)
             await maybe_run_post_update(update)
             return
@@ -161,31 +194,38 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             pending_id = context.user_data.get('memory_id')
             if not pending_id:
                 clear_pending_action(context)
-                await update.effective_message.reply_text('The edit session expired. Refresh with /list.')
+                await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
                 return
             updated = store.update_date(pending_id, text)
             page = int(context.user_data.get('browser_page', 0))
             clear_pending_action(context)
-            await update.effective_message.reply_text(
+            await reply_with_command_menu(
+                update.effective_message,
                 f'Date updated. This memory is now stored under {updated.date}.'
             )
             await refresh_or_send_memory_browser(update.effective_message, context, page=page)
             await maybe_run_post_update(update)
             return
 
-        await update.effective_message.reply_text('Use /list or /new, or send /cancel to clear the current action.')
+        await reply_with_command_menu(
+            update.effective_message,
+            'Use /list or /new, or send /cancel to clear the current action.',
+        )
     except ValueError as exc:
-        await update.effective_message.reply_text(str(exc))
+        await reply_with_command_menu(update.effective_message, str(exc))
     except KeyError as exc:
         clear_pending_action(context)
-        await update.effective_message.reply_text(str(exc))
+        await reply_with_command_menu(update.effective_message, str(exc))
 
 
 @require_authorized
 async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     action = context.user_data.get('action', ACTION_NONE)
     if action not in {ACTION_NEW_MEDIA, ACTION_EDIT_MEDIA}:
-        await update.effective_message.reply_text('Use /new to create a memory or /list to edit an existing one.')
+        await reply_with_command_menu(
+            update.effective_message,
+            'Use /new to create a memory or /list to edit an existing one.',
+        )
         return
 
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_DOCUMENT)
@@ -201,7 +241,8 @@ async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 description=payload['description'],
             )
             clear_pending_action(context)
-            await update.effective_message.reply_text(
+            await reply_with_command_menu(
+                update.effective_message,
                 f'Created new memory for {created.date} with file {created.image}.'
             )
             await refresh_or_send_memory_browser(update.effective_message, context, page=0)
@@ -211,23 +252,24 @@ async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         pending_id = context.user_data.get('memory_id')
         if not pending_id:
             clear_pending_action(context)
-            await update.effective_message.reply_text('The edit session expired. Refresh with /list.')
+            await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
             return
         updated = store.replace_media(pending_id, saved_filename)
         page = int(context.user_data.get('browser_page', 0))
         clear_pending_action(context)
-        await update.effective_message.reply_text(
+        await reply_with_command_menu(
+            update.effective_message,
             f'Media replaced for {updated.date}. New file: {updated.image}.'
         )
         await refresh_or_send_memory_browser(update.effective_message, context, page=page)
         await maybe_run_post_update(update)
     except ValueError as exc:
         cleanup_saved_file(saved_filename)
-        await update.effective_message.reply_text(str(exc))
+        await reply_with_command_menu(update.effective_message, str(exc))
     except KeyError as exc:
         cleanup_saved_file(saved_filename)
         clear_pending_action(context)
-        await update.effective_message.reply_text(str(exc))
+        await reply_with_command_menu(update.effective_message, str(exc))
     except Exception:
         cleanup_saved_file(saved_filename)
         raise
@@ -497,6 +539,7 @@ async def render_memory_browser(
     context: ContextTypes.DEFAULT_TYPE,
     page: int,
     notice: str | None = None,
+    confirm_delete: bool = False,
 ) -> None:
     memories = store.list_memories()
     if not memories:
@@ -504,7 +547,12 @@ async def render_memory_browser(
         await replace_browser_with_text(message, context, 'No memories found.', None, page=0)
         return
 
-    _, media_path, caption, keyboard, normalized_page = build_memory_browser_view(memories, page, notice)
+    _, media_path, caption, keyboard, normalized_page = build_memory_browser_view(
+        memories,
+        page,
+        notice,
+        confirm_delete=confirm_delete,
+    )
     if not media_path.exists():
         await replace_browser_with_text(
             message,
@@ -690,7 +738,7 @@ def cleanup_saved_file(filename: str | None) -> None:
 def build_application() -> Application:
     if not BOT_TOKEN:
         raise RuntimeError('TELEGRAM_BOT_TOKEN is missing in the root .env file.')
-    return ApplicationBuilder().token(BOT_TOKEN).build()
+    return ApplicationBuilder().token(BOT_TOKEN).post_init(post_init).build()
 
 
 def main() -> None:
