@@ -46,10 +46,8 @@ Supported bot flows:
 - The bot shows a persistent command keyboard for `/list`, `/new`, `/cancel`, and `/start`, and also registers the native Telegram command menu
 - `/cancel` clears the current pending edit or creation flow
 
-Access is restricted to Telegram usernames in `TELEGRAM_ALLOWED_USERNAMES`. By default:
+Access is restricted to Telegram usernames in `TELEGRAM_ALLOWED_USERNAMES`
 
-- `@reagan_c`
-- `@audikor`
 
 If anyone else messages the bot, it replies with:
 
