@@ -16,7 +16,7 @@ The frontend stays static. A separate Python Telegram bot can now manage the mem
 ## Quick Start on Linux
 
 ```bash
-./start_dev_fe
+./start_dev_fe.sh
 ```
 
 This starts the Vite frontend at `http://localhost:5234`.
@@ -39,11 +39,12 @@ Backend files:
 
 Supported bot flows:
 
-- `/list` opens a single inline media viewer in one Telegram message and pages through each memory's image or video in place
+- `/list` opens a paginated overview list in one Telegram message
+- Selecting a memory from the list opens its image or video with inline edit controls
 - `/new` creates a new memory by asking for the date, description, and media upload
 - Edit actions support caption, date, and media replacement
 - Delete removes the memory entry and deletes the local media file when no other entry uses it
-- The bot shows a persistent command keyboard for `/list`, `/new`, `/cancel`, and `/start`, and also registers the native Telegram command menu
+- The bot shows a persistent reply keyboard with `🗂 List Memories` and `➕ New Memory`
 - `/cancel` clears the current pending edit or creation flow
 
 Access is restricted to Telegram usernames in `TELEGRAM_ALLOWED_USERNAMES`
@@ -89,8 +90,8 @@ By default, every successful memory create, edit, or delete triggers `./build.sh
 
 ### Bot Usage
 
-1. Send `/list` to open the memory media viewer
-2. Use `Prev` and `Next` to page through each memory's image or video inside the same Telegram message
+1. Send `/list` or tap `🗂 List Memories` to open the paginated memory overview
+2. Tap a memory row to open its image or video inside the bot
 3. Use the inline buttons to edit caption, date, replace media, or delete the current memory
 4. Send `/new` to create a new memory, then follow the prompts
 

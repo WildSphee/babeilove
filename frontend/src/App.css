@@ -372,6 +372,102 @@
   background-clip: text;
 }
 
+/* ============ Export as Video Button ============ */
+.export-btn-wrapper {
+  position: fixed;
+  top: 1.4rem;
+  right: 1.5rem;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.15rem;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  color: #fff;
+  border: none;
+  border-radius: 2rem;
+  font-family: 'Papernotes', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow:
+    0 4px 18px rgba(168, 85, 247, 0.45),
+    0 1px 4px rgba(0, 0, 0, 0.12);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.export-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 8px 28px rgba(168, 85, 247, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.14);
+}
+
+.export-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.export-btn:disabled {
+  opacity: 0.82;
+  cursor: wait;
+}
+
+.export-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Spinning loader inside button */
+.export-spinner {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: export-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes export-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Small error message below button */
+.export-error {
+  font-family: 'Papernotes', sans-serif;
+  font-size: 0.78rem;
+  color: #f43f5e;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.8rem;
+  max-width: 200px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .export-btn-wrapper {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .export-btn {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.9rem;
+  }
+}
+
 /* ============ Reduced Motion ============ */
 @media (prefers-reduced-motion: reduce) {
   .parallax-layer,

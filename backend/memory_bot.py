@@ -10,12 +10,8 @@ from typing import Any
 
 from dotenv import load_dotenv
 from telegram import (
-    BotCommand,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    InputMediaDocument,
-    InputMediaPhoto,
-    InputMediaVideo,
     KeyboardButton,
     ReplyKeyboardMarkup,
     Update,
@@ -61,13 +57,14 @@ ACTION_NEW_MEDIA = 'new_media'
 ACTION_EDIT_CAPTION = 'edit_caption'
 ACTION_EDIT_DATE = 'edit_date'
 ACTION_EDIT_MEDIA = 'edit_media'
+LIST_PAGE_SIZE = 6
 NOOP_CALLBACK = 'noop'
-COMMANDS = [
-    BotCommand('list', 'Browse memories'),
-    BotCommand('new', 'Add a new memory'),
-    BotCommand('cancel', 'Cancel the current action'),
-    BotCommand('start', 'Show help and command buttons'),
-]
+BUTTON_LIST_MEMORIES = '🗂 List Memories'
+BUTTON_NEW_MEMORY = '➕ New Memory'
+BUTTON_COMMAND_LOOKUP = {
+    BUTTON_LIST_MEMORIES: 'list',
+    BUTTON_NEW_MEMORY: 'new',
+}
 
 store = MemoryStore(REPO_ROOT)
 
@@ -98,8 +95,7 @@ async def ensure_authorized(update: Update) -> bool:
 def build_command_reply_markup() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         [
-            [KeyboardButton('/list'), KeyboardButton('/new')],
-            [KeyboardButton('/cancel'), KeyboardButton('/start')],
+            [KeyboardButton(BUTTON_LIST_MEMORIES), KeyboardButton(BUTTON_NEW_MEMORY)],
         ],
         resize_keyboard=True,
         is_persistent=True,
@@ -112,7 +108,7 @@ async def reply_with_command_menu(message, text: str) -> None:
 
 
 async def post_init(application: Application) -> None:
-    await application.bot.set_my_commands(COMMANDS)
+    await application.bot.delete_my_commands()
 
 
 @require_authorized
@@ -120,10 +116,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     clear_pending_action(context)
     await reply_with_command_menu(
         update.effective_message,
-        'Commands:\n'
-        '/list - browse memories with image/video preview\n'
-        '/new - add a new memory\n'
-        '/cancel - clear the current pending action'
+        # 'Use the buttons below or these commands:\n'
+        # '/list - browse memories\n'
+        # '/new - add a new memory\n'
+        # '/cancel - clear the current pending action'
     )
 
 
@@ -141,7 +137,7 @@ async def list_memories(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await reply_with_command_menu(update.effective_message, 'No memories found.')
         return
 
-    await send_memory_browser(update.effective_message, context, page=0)
+    await refresh_or_send_memory_list(update.effective_message, context, list_page=0)
 
 
 @require_authorized
@@ -155,6 +151,15 @@ async def new_memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     action = context.user_data.get('action', ACTION_NONE)
     text = (update.effective_message.text or '').strip()
+    mapped_command = BUTTON_COMMAND_LOOKUP.get(text)
+
+    if mapped_command == 'list':
+        await list_memories(update, context)
+        return
+
+    if mapped_command == 'new':
+        await new_memory(update, context)
+        return
 
     try:
         if action == ACTION_NEW_DATE:
@@ -183,10 +188,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
                 return
             updated = store.update_caption(pending_id, text)
-            page = int(context.user_data.get('browser_page', 0))
+            list_page = find_list_page_for_memory(
+                updated.id,
+                fallback=int(context.user_data.get('browser_page', 0)),
+            )
             clear_pending_action(context)
             await reply_with_command_menu(update.effective_message, f'Caption updated for {updated.date}.')
-            await refresh_or_send_memory_browser(update.effective_message, context, page=page)
+            await refresh_or_send_memory_list(update.effective_message, context, list_page=list_page)
             await maybe_run_post_update(update)
             return
 
@@ -197,13 +205,16 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
                 return
             updated = store.update_date(pending_id, text)
-            page = int(context.user_data.get('browser_page', 0))
+            list_page = find_list_page_for_memory(
+                updated.id,
+                fallback=int(context.user_data.get('browser_page', 0)),
+            )
             clear_pending_action(context)
             await reply_with_command_menu(
                 update.effective_message,
                 f'Date updated. This memory is now stored under {updated.date}.'
             )
-            await refresh_or_send_memory_browser(update.effective_message, context, page=page)
+            await refresh_or_send_memory_list(update.effective_message, context, list_page=list_page)
             await maybe_run_post_update(update)
             return
 
@@ -245,7 +256,11 @@ async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 update.effective_message,
                 f'Created new memory for {created.date} with file {created.image}.'
             )
-            await refresh_or_send_memory_browser(update.effective_message, context, page=0)
+            await refresh_or_send_memory_list(
+                update.effective_message,
+                context,
+                list_page=find_list_page_for_memory(created.id, fallback=0),
+            )
             await maybe_run_post_update(update)
             return
 
@@ -255,13 +270,16 @@ async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
             return
         updated = store.replace_media(pending_id, saved_filename)
-        page = int(context.user_data.get('browser_page', 0))
+        list_page = find_list_page_for_memory(
+            updated.id,
+            fallback=int(context.user_data.get('browser_page', 0)),
+        )
         clear_pending_action(context)
         await reply_with_command_menu(
             update.effective_message,
             f'Media replaced for {updated.date}. New file: {updated.image}.'
         )
-        await refresh_or_send_memory_browser(update.effective_message, context, page=page)
+        await refresh_or_send_memory_list(update.effective_message, context, list_page=list_page)
         await maybe_run_post_update(update)
     except ValueError as exc:
         cleanup_saved_file(saved_filename)
@@ -284,15 +302,20 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return
 
     try:
-        action, raw_page, *rest = data.split(':')
-        page = int(raw_page)
+        action, raw_value, *rest = data.split(':')
+        value = int(raw_value)
     except (TypeError, ValueError):
         await query.message.reply_text('Invalid action payload.')
         return
 
-    if action == 'page':
+    if action == 'lp':
         clear_pending_action(context)
-        await render_memory_browser(query.message, context, page=page)
+        await render_memory_list(query.message, context, list_page=value)
+        return
+
+    if action == 'dv':
+        clear_pending_action(context)
+        await render_memory_detail(query.message, context, detail_index=value)
         return
 
     if not rest:
@@ -303,51 +326,56 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     memory = store.get_memory(memory_id)
     if memory is None:
         clear_pending_action(context)
-        await render_memory_browser(query.message, context, page=page, notice='Memory no longer exists.')
+        await render_memory_list(query.message, context, list_page=value, notice='Memory no longer exists.')
         return
 
-    if action == 'mem':
+    if action == 'lo':
         clear_pending_action(context)
-        await render_memory_browser(query.message, context, page=page)
+        await render_memory_detail_by_id(query.message, context, memory_id=memory_id, list_page=value)
         return
 
     if action == 'ec':
         context.user_data['action'] = ACTION_EDIT_CAPTION
         context.user_data['memory_id'] = memory_id
-        context.user_data['browser_page'] = page
+        context.user_data['browser_page'] = value
         await query.message.reply_text('Send the new caption text.')
         return
 
     if action == 'ed':
         context.user_data['action'] = ACTION_EDIT_DATE
         context.user_data['memory_id'] = memory_id
-        context.user_data['browser_page'] = page
+        context.user_data['browser_page'] = value
         await query.message.reply_text('Send the new date in YYYY-MM-DD format.')
         return
 
     if action == 'em':
         context.user_data['action'] = ACTION_EDIT_MEDIA
         context.user_data['memory_id'] = memory_id
-        context.user_data['browser_page'] = page
+        context.user_data['browser_page'] = value
         await query.message.reply_text('Send the replacement photo or video.')
         return
 
     if action == 'del':
         clear_pending_action(context)
-        await render_delete_confirmation(query.message, context, memory_id, page=page)
+        await render_delete_confirmation(query.message, context, memory_id=memory_id, list_page=value)
         return
 
     if action == 'delc':
         deleted = store.delete_memory(memory_id)
         clear_pending_action(context)
-        await render_memory_browser(query.message, context, page=page, notice=f'Deleted memory from {deleted.date}.')
+        await refresh_or_send_memory_list(
+            query.message,
+            context,
+            list_page=value,
+            notice=f'Deleted memory from {deleted.date}.',
+        )
         await maybe_run_post_update(update)
         return
 
     await query.message.reply_text('Unknown action.')
 
 
-def truncate_caption(value: str, limit: int = 760) -> str:
+def truncate_text(value: str, limit: int = 760) -> str:
     text = ' '.join((value or '').split())
     if not text:
         return '(no description)'
@@ -356,52 +384,36 @@ def truncate_caption(value: str, limit: int = 760) -> str:
     return f'{text[: limit - 3].rstrip()}...'
 
 
-def normalize_page(page: int, total_items: int) -> int:
+def normalize_list_page(list_page: int, total_items: int) -> int:
     if total_items <= 0:
         return 0
-    return max(0, min(page, total_items - 1))
+    total_pages = max(1, (total_items + LIST_PAGE_SIZE - 1) // LIST_PAGE_SIZE)
+    return max(0, min(list_page, total_pages - 1))
 
 
-def remember_browser_message(
-    context: ContextTypes.DEFAULT_TYPE, *, chat_id: int, message_id: int, page: int
-) -> None:
-    context.user_data['browser_chat_id'] = chat_id
-    context.user_data['browser_message_id'] = message_id
-    context.user_data['browser_page'] = page
+def normalize_memory_index(detail_index: int, total_items: int) -> int:
+    if total_items <= 0:
+        return 0
+    return max(0, min(detail_index, total_items - 1))
 
 
-def clear_browser_message(context: ContextTypes.DEFAULT_TYPE) -> None:
-    context.user_data.pop('browser_chat_id', None)
-    context.user_data.pop('browser_message_id', None)
-    context.user_data.pop('browser_page', None)
+def memory_index_to_list_page(detail_index: int) -> int:
+    return detail_index // LIST_PAGE_SIZE
 
 
-def build_memory_keyboard(memory: MemoryRecord, page: int, total_items: int, confirm_delete: bool = False) -> InlineKeyboardMarkup:
-    navigation_row = []
-    if page > 0:
-        navigation_row.append(InlineKeyboardButton('Prev', callback_data=f'page:{page - 1}'))
-    navigation_row.append(InlineKeyboardButton(f'{page + 1}/{total_items}', callback_data=NOOP_CALLBACK))
-    if page < total_items - 1:
-        navigation_row.append(InlineKeyboardButton('Next', callback_data=f'page:{page + 1}'))
+def find_memory_index(memories: list[MemoryRecord], memory_id: str) -> int | None:
+    for index, memory in enumerate(memories):
+        if memory.id == memory_id:
+            return index
+    return None
 
-    if confirm_delete:
-        rows = [
-            navigation_row,
-            [InlineKeyboardButton('Confirm delete', callback_data=f'delc:{page}:{memory.id}')],
-            [InlineKeyboardButton('Cancel', callback_data=f'page:{page}')],
-        ]
-    else:
-        rows = [
-            navigation_row,
-            [
-                InlineKeyboardButton('Edit caption', callback_data=f'ec:{page}:{memory.id}'),
-                InlineKeyboardButton('Edit date', callback_data=f'ed:{page}:{memory.id}'),
-            ],
-            [InlineKeyboardButton('Replace media', callback_data=f'em:{page}:{memory.id}')],
-            [InlineKeyboardButton('Delete', callback_data=f'del:{page}:{memory.id}')],
-        ]
 
-    return InlineKeyboardMarkup(rows)
+def find_list_page_for_memory(memory_id: str, fallback: int = 0) -> int:
+    memories = store.list_memories()
+    detail_index = find_memory_index(memories, memory_id)
+    if detail_index is None:
+        return fallback
+    return memory_index_to_list_page(detail_index)
 
 
 def get_memory_media_kind(media_path: Path) -> str:
@@ -413,11 +425,96 @@ def get_memory_media_kind(media_path: Path) -> str:
     return 'document'
 
 
-def build_memory_browser_view(
-    memories: list[MemoryRecord], page: int, notice: str | None = None, confirm_delete: bool = False
-) -> tuple[MemoryRecord, Path, str, InlineKeyboardMarkup, int]:
-    page = normalize_page(page, len(memories))
-    memory = memories[page]
+def build_memory_list_view(
+    memories: list[MemoryRecord],
+    list_page: int,
+    notice: str | None = None,
+) -> tuple[str, InlineKeyboardMarkup, int]:
+    list_page = normalize_list_page(list_page, len(memories))
+    start = list_page * LIST_PAGE_SIZE
+    page_items = memories[start : start + LIST_PAGE_SIZE]
+    total_pages = max(1, (len(memories) + LIST_PAGE_SIZE - 1) // LIST_PAGE_SIZE)
+
+    lines = []
+    if notice:
+        lines.extend([notice, ''])
+    lines.extend(
+        [
+            f'Memories {start + 1}-{start + len(page_items)} of {len(memories)}',
+            'Tap a memory below to open its image or video.',
+        ]
+    )
+
+    rows: list[list[InlineKeyboardButton]] = []
+    for offset, memory in enumerate(page_items, start=start):
+        number = offset + 1
+        lines.extend(
+            [
+                '',
+                f'{number}. {memory.date}',
+                f'   {truncate_text(memory.description, limit=72)}',
+            ]
+        )
+        rows.append(
+            [InlineKeyboardButton(f'{number}. {memory.date}', callback_data=f'lo:{list_page}:{memory.id}')]
+        )
+
+    nav_row = []
+    if list_page > 0:
+        nav_row.append(InlineKeyboardButton('Prev', callback_data=f'lp:{list_page - 1}'))
+    nav_row.append(InlineKeyboardButton(f'{list_page + 1}/{total_pages}', callback_data=NOOP_CALLBACK))
+    if list_page < total_pages - 1:
+        nav_row.append(InlineKeyboardButton('Next', callback_data=f'lp:{list_page + 1}'))
+    rows.append(nav_row)
+
+    return '\n'.join(lines), InlineKeyboardMarkup(rows), list_page
+
+
+def build_memory_detail_keyboard(
+    memory: MemoryRecord,
+    detail_index: int,
+    total_items: int,
+    list_page: int,
+    confirm_delete: bool = False,
+) -> InlineKeyboardMarkup:
+    navigation_row = []
+    if detail_index > 0:
+        navigation_row.append(InlineKeyboardButton('Prev', callback_data=f'dv:{detail_index - 1}'))
+    navigation_row.append(InlineKeyboardButton(f'{detail_index + 1}/{total_items}', callback_data=NOOP_CALLBACK))
+    if detail_index < total_items - 1:
+        navigation_row.append(InlineKeyboardButton('Next', callback_data=f'dv:{detail_index + 1}'))
+
+    if confirm_delete:
+        rows = [
+            navigation_row,
+            [InlineKeyboardButton('Confirm delete', callback_data=f'delc:{list_page}:{memory.id}')],
+            [InlineKeyboardButton('Cancel', callback_data=f'dv:{detail_index}')],
+            [InlineKeyboardButton('Back to list', callback_data=f'lp:{list_page}')],
+        ]
+    else:
+        rows = [
+            navigation_row,
+            [
+                InlineKeyboardButton('Edit caption', callback_data=f'ec:{list_page}:{memory.id}'),
+                InlineKeyboardButton('Edit date', callback_data=f'ed:{list_page}:{memory.id}'),
+            ],
+            [InlineKeyboardButton('Replace media', callback_data=f'em:{list_page}:{memory.id}')],
+            [InlineKeyboardButton('Delete', callback_data=f'del:{list_page}:{memory.id}')],
+            [InlineKeyboardButton('Back to list', callback_data=f'lp:{list_page}')],
+        ]
+
+    return InlineKeyboardMarkup(rows)
+
+
+def build_memory_detail_view(
+    memories: list[MemoryRecord],
+    detail_index: int,
+    notice: str | None = None,
+    confirm_delete: bool = False,
+) -> tuple[Path, str, InlineKeyboardMarkup, int, int]:
+    detail_index = normalize_memory_index(detail_index, len(memories))
+    memory = memories[detail_index]
+    list_page = memory_index_to_list_page(detail_index)
     media_path = store.media_dir / memory.image
     caption_lines = []
     if notice:
@@ -425,11 +522,11 @@ def build_memory_browser_view(
         caption_lines.append('')
     caption_lines.extend(
         [
-            f'Memory {page + 1} of {len(memories)}',
+            f'Memory {detail_index + 1} of {len(memories)}',
             f'Date: {memory.date}',
             f'File: {memory.image}',
             '',
-            truncate_caption(memory.description),
+            truncate_text(memory.description),
         ]
     )
     if confirm_delete:
@@ -441,142 +538,185 @@ def build_memory_browser_view(
             ]
         )
 
-    keyboard = build_memory_keyboard(
+    keyboard = build_memory_detail_keyboard(
         memory,
-        page,
+        detail_index,
         total_items=len(memories),
+        list_page=list_page,
         confirm_delete=confirm_delete,
     )
-    return memory, media_path, '\n'.join(caption_lines), keyboard, page
+    return media_path, '\n'.join(caption_lines), keyboard, detail_index, list_page
 
 
-def build_input_media(media_kind: str, media_handle, caption: str):
-    if media_kind == 'photo':
-        return InputMediaPhoto(media=media_handle, caption=caption)
-    if media_kind == 'video':
-        return InputMediaVideo(media=media_handle, caption=caption)
-    return InputMediaDocument(media=media_handle, caption=caption)
+def is_media_message(message) -> bool:
+    return bool(message.photo or message.video or message.document)
 
 
-async def replace_browser_with_text(
+async def send_or_edit_text_browser(
     message,
-    context: ContextTypes.DEFAULT_TYPE,
     text: str,
     reply_markup: InlineKeyboardMarkup | None,
-    page: int,
-) -> None:
+):
+    if is_media_message(message):
+        return await message.reply_text(text, reply_markup=reply_markup)
+
     try:
-        await message.delete()
-    except BadRequest:
-        pass
-    sent_message = await context.bot.send_message(
-        chat_id=message.chat_id,
-        text=text,
-        reply_markup=reply_markup,
-    )
-    remember_browser_message(
-        context,
-        chat_id=sent_message.chat_id,
-        message_id=sent_message.message_id,
-        page=page,
-    )
+        await message.edit_text(text=text, reply_markup=reply_markup)
+        return message
+    except BadRequest as exc:
+        if 'message is not modified' in str(exc).lower():
+            return message
+        return await message.reply_text(text, reply_markup=reply_markup)
 
 
-async def send_memory_browser(
+async def send_or_edit_media_browser(
+    message,
+    media_path: Path,
+    caption: str,
+    reply_markup: InlineKeyboardMarkup,
+) -> None:
+    media_kind = get_memory_media_kind(media_path)
+    if not is_media_message(message):
+        with media_path.open('rb') as media_handle:
+            if media_kind == 'photo':
+                return await message.reply_photo(
+                    photo=media_handle,
+                    caption=caption,
+                    reply_markup=reply_markup,
+                )
+            if media_kind == 'video':
+                return await message.reply_video(
+                    video=media_handle,
+                    caption=caption,
+                    reply_markup=reply_markup,
+                )
+            return await message.reply_document(
+                document=media_handle,
+                caption=caption,
+                reply_markup=reply_markup,
+            )
+
+    with media_path.open('rb') as media_handle:
+        input_media = None
+        if media_kind == 'photo':
+            from telegram import InputMediaPhoto
+
+            input_media = InputMediaPhoto(media=media_handle, caption=caption)
+        elif media_kind == 'video':
+            from telegram import InputMediaVideo
+
+            input_media = InputMediaVideo(media=media_handle, caption=caption)
+        else:
+            from telegram import InputMediaDocument
+
+            input_media = InputMediaDocument(media=media_handle, caption=caption)
+
+        try:
+            await message.edit_media(media=input_media, reply_markup=reply_markup)
+            return message
+        except BadRequest as exc:
+            if 'message is not modified' in str(exc).lower():
+                try:
+                    await message.edit_caption(caption=caption, reply_markup=reply_markup)
+                except BadRequest:
+                    pass
+                return message
+            with media_path.open('rb') as resend_handle:
+                if media_kind == 'photo':
+                    return await message.reply_photo(
+                        photo=resend_handle,
+                        caption=caption,
+                        reply_markup=reply_markup,
+                    )
+                if media_kind == 'video':
+                    return await message.reply_video(
+                        video=resend_handle,
+                        caption=caption,
+                        reply_markup=reply_markup,
+                    )
+                return await message.reply_document(
+                    document=resend_handle,
+                    caption=caption,
+                    reply_markup=reply_markup,
+                )
+
+
+async def send_memory_list(
     message,
     context: ContextTypes.DEFAULT_TYPE,
-    page: int,
+    list_page: int,
     notice: str | None = None,
 ) -> None:
     memories = store.list_memories()
     if not memories:
-        clear_browser_message(context)
-        await message.reply_text('No memories found.')
+        await reply_with_command_menu(message, 'No memories found.')
         return
 
-    _, media_path, caption, keyboard, normalized_page = build_memory_browser_view(memories, page, notice)
-    if not media_path.exists():
-        await replace_browser_with_text(
-            message,
-            context,
-            f'{caption}\n\nMissing file on disk.',
-            keyboard,
-            normalized_page,
-        )
-        return
-
-    media_kind = get_memory_media_kind(media_path)
-    with media_path.open('rb') as media_handle:
-        if media_kind == 'photo':
-            sent_message = await message.reply_photo(
-                photo=media_handle,
-                caption=caption,
-                reply_markup=keyboard,
-            )
-        elif media_kind == 'video':
-            sent_message = await message.reply_video(
-                video=media_handle,
-                caption=caption,
-                reply_markup=keyboard,
-            )
-        else:
-            sent_message = await message.reply_document(
-                document=media_handle,
-                caption=caption,
-                reply_markup=keyboard,
-            )
-
-    remember_browser_message(
-        context,
-        chat_id=sent_message.chat_id,
-        message_id=sent_message.message_id,
-        page=normalized_page,
-    )
+    text, keyboard, normalized_page = build_memory_list_view(memories, list_page, notice)
+    await send_or_edit_text_browser(message, text, keyboard)
 
 
-async def render_memory_browser(
+async def render_memory_list(
     message,
     context: ContextTypes.DEFAULT_TYPE,
-    page: int,
+    list_page: int,
+    notice: str | None = None,
+) -> None:
+    memories = store.list_memories()
+    if not memories:
+        await send_or_edit_text_browser(message, 'No memories found.', None)
+        return
+
+    text, keyboard, normalized_page = build_memory_list_view(memories, list_page, notice)
+    await send_or_edit_text_browser(message, text, keyboard)
+
+
+async def render_memory_detail(
+    message,
+    context: ContextTypes.DEFAULT_TYPE,
+    detail_index: int,
     notice: str | None = None,
     confirm_delete: bool = False,
 ) -> None:
     memories = store.list_memories()
     if not memories:
-        clear_browser_message(context)
-        await replace_browser_with_text(message, context, 'No memories found.', None, page=0)
+        await send_or_edit_text_browser(message, 'No memories found.', None)
         return
 
-    _, media_path, caption, keyboard, normalized_page = build_memory_browser_view(
+    media_path, caption, keyboard, normalized_index, list_page = build_memory_detail_view(
         memories,
-        page,
+        detail_index,
         notice,
         confirm_delete=confirm_delete,
     )
     if not media_path.exists():
-        await replace_browser_with_text(
-            message,
-            context,
-            f'{caption}\n\nMissing file on disk.',
-            keyboard,
-            normalized_page,
-        )
+        await send_or_edit_text_browser(message, f'{caption}\n\nMissing file on disk.', keyboard)
         return
 
-    media_kind = get_memory_media_kind(media_path)
-    with media_path.open('rb') as media_handle:
-        input_media = build_input_media(media_kind, media_handle, caption)
-        try:
-            await message.edit_media(media=input_media, reply_markup=keyboard)
-        except BadRequest as exc:
-            if 'message is not modified' not in str(exc).lower():
-                raise
+    await send_or_edit_media_browser(message, media_path, caption, keyboard)
 
-    remember_browser_message(
+
+async def render_memory_detail_by_id(
+    message,
+    context: ContextTypes.DEFAULT_TYPE,
+    memory_id: str,
+    list_page: int | None = None,
+    notice: str | None = None,
+    confirm_delete: bool = False,
+) -> None:
+    memories = store.list_memories()
+    detail_index = find_memory_index(memories, memory_id)
+    if detail_index is None:
+        fallback_page = 0 if list_page is None else list_page
+        await render_memory_list(message, context, list_page=fallback_page, notice='Memory no longer exists.')
+        return
+
+    await render_memory_detail(
+        message,
         context,
-        chat_id=message.chat_id,
-        message_id=message.message_id,
-        page=normalized_page,
+        detail_index=detail_index,
+        notice=notice,
+        confirm_delete=confirm_delete,
     )
 
 
@@ -584,77 +724,30 @@ async def render_delete_confirmation(
     message,
     context: ContextTypes.DEFAULT_TYPE,
     memory_id: str,
-    page: int,
+    list_page: int,
 ) -> None:
     memories = store.list_memories()
-    if not any(item.id == memory_id for item in memories):
-        await render_memory_browser(message, context, page=page, notice='Memory no longer exists.')
+    detail_index = find_memory_index(memories, memory_id)
+    if detail_index is None:
+        await render_memory_list(message, context, list_page=list_page, notice='Memory no longer exists.')
         return
 
-    await render_memory_browser(
+    await render_memory_detail(
         message,
         context,
-        page=page,
+        detail_index=detail_index,
         notice='Delete confirmation',
         confirm_delete=True,
     )
 
 
-async def refresh_memory_browser(
-    context: ContextTypes.DEFAULT_TYPE, page: int | None = None
-) -> bool:
-    chat_id = context.user_data.get('browser_chat_id')
-    message_id = context.user_data.get('browser_message_id')
-    if chat_id is None or message_id is None:
-        return False
-
-    page_to_use = int(context.user_data.get('browser_page', 0) if page is None else page)
-    memories = store.list_memories()
-    if not memories:
-        clear_browser_message(context)
-        try:
-            await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
-        except BadRequest:
-            pass
-        return False
-
-    _, media_path, caption, keyboard, normalized_page = build_memory_browser_view(memories, page_to_use)
-    if not media_path.exists():
-        clear_browser_message(context)
-        return False
-
-    media_kind = get_memory_media_kind(media_path)
-    try:
-        with media_path.open('rb') as media_handle:
-            input_media = build_input_media(media_kind, media_handle, caption)
-            await context.bot.edit_message_media(
-                chat_id=chat_id,
-                message_id=message_id,
-                media=input_media,
-                reply_markup=keyboard,
-            )
-    except BadRequest as exc:
-        if 'message is not modified' not in str(exc).lower():
-            clear_browser_message(context)
-            return False
-
-    remember_browser_message(
-        context,
-        chat_id=chat_id,
-        message_id=message_id,
-        page=normalized_page,
-    )
-    return True
-
-
-async def refresh_or_send_memory_browser(
+async def refresh_or_send_memory_list(
     message,
     context: ContextTypes.DEFAULT_TYPE,
-    page: int | None = None,
+    list_page: int = 0,
+    notice: str | None = None,
 ) -> None:
-    if await refresh_memory_browser(context, page=page):
-        return
-    await send_memory_browser(message, context, page=page or 0)
+    await send_memory_list(message, context, list_page=list_page, notice=notice)
 
 
 async def download_media_from_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
