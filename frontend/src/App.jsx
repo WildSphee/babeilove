@@ -7,6 +7,7 @@ const baseUrl = import.meta.env.BASE_URL || '/'
 const memoriesUrl = `${baseUrl}media/memories.json`
 const memoriesModuleUrl = `${baseUrl}media/memories.js`
 const mediaUrl = (filename) => `${baseUrl}media/${filename}`
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 
 async function loadMemories() {
   try {
@@ -116,7 +117,7 @@ function App() {
     setIsExporting(true)
     setExportError(null)
     try {
-      const response = await fetch('/api/export-video')
+      const response = await fetch(`${apiBaseUrl}/export-video`)
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
         throw new Error(err.error || `Server error ${response.status}`)
@@ -125,6 +126,9 @@ function App() {
       const contentType = response.headers.get('content-type') || ''
       if (!contentType.includes('video/mp4')) {
         const message = await response.text().catch(() => '')
+        if (contentType.includes('text/html')) {
+          throw new Error('Export endpoint returned the website HTML instead of an MP4. /api is not reaching backend.video_server yet.')
+        }
         throw new Error(message || 'Export returned an unexpected response instead of an MP4.')
       }
 

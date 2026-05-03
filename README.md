@@ -88,6 +88,24 @@ By default, every successful memory create, edit, or delete triggers `./build.sh
 ./start_dev_fe.sh
 ```
 
+### Video Export Routing
+
+The "Export as Video" button calls `/api/export-video`.
+
+- In local Vite dev, `frontend/vite.config.js` already proxies `/api` to `http://127.0.0.1:5050`
+- In production, your web server must proxy `/api/` to the Flask video server
+
+Example nginx location:
+
+```nginx
+location /api/ {
+    proxy_pass http://127.0.0.1:5050/api/;
+    proxy_read_timeout 600;
+}
+```
+
+If you do not want to use `/api` on the same origin, set `VITE_API_BASE_URL` for the frontend build so the button calls a different backend base URL.
+
 ### Bot Usage
 
 1. Send `/list` or tap `🗂 List Memories` to open the paginated memory overview
