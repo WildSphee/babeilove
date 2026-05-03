@@ -4,8 +4,14 @@
   padding: 0;
 }
 
+:root {
+  --site-cursor-default: url('/usagi-chiikawa-custom-cursor-32.png') 8 8, auto;
+  --site-cursor-pointer: url('/usagi-chiikawa-custom-cursor-32.png') 8 8, pointer;
+}
+
 html {
   scroll-behavior: smooth;
+  cursor: var(--site-cursor-default);
 }
 
 body {
@@ -14,10 +20,24 @@ body {
   background: #faf9f7;
   line-height: 1.6;
   min-height: 100vh;
+  cursor: var(--site-cursor-default);
 }
 
 #root {
   min-height: 100vh;
+}
+
+a,
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+label[for],
+summary,
+.gallery-media,
+.lightbox-backdrop {
+  cursor: var(--site-cursor-pointer);
 }
 
 @media (prefers-reduced-motion: reduce) {
