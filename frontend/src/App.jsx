@@ -50,8 +50,8 @@ function CustomCursor() {
     const cursor = cursorRef.current
     if (!cursor) return
 
-    const position = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-    const target = { ...position }
+    const target = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+    const motion = { x: 0, y: 0 }
     let swingPhase = 0
     let frameId = 0
 
@@ -62,20 +62,18 @@ function CustomCursor() {
     }
 
     const animate = () => {
-      position.x += (target.x - position.x) * 0.18
-      position.y += (target.y - position.y) * 0.18
+      motion.x *= 0.82
+      motion.y *= 0.82
 
-      const dx = target.x - position.x
-      const dy = target.y - position.y
-      const speed = Math.hypot(dx, dy)
+      const speed = Math.hypot(motion.x, motion.y)
 
       swingPhase += Math.min(speed * 0.05, 0.3)
       const sway = Math.sin(swingPhase) * Math.min(speed * 0.16, 8)
-      const tilt = Math.max(-16, Math.min(16, dx * 0.18 + sway))
+      const tilt = Math.max(-16, Math.min(16, motion.x * 0.22 + sway))
       const stretch = Math.min(speed * 0.008, 0.12)
 
       cursor.style.transform = [
-        `translate3d(${position.x}px, ${position.y}px, 0)`,
+        `translate3d(${target.x}px, ${target.y}px, 0)`,
         'translate(-28%, -18%)',
         `rotate(${tilt}deg)`,
         `scaleX(${1 + stretch})`,
@@ -86,6 +84,8 @@ function CustomCursor() {
     }
 
     const handlePointerMove = (event) => {
+      motion.x = event.movementX
+      motion.y = event.movementY
       target.x = event.clientX
       target.y = event.clientY
       setCursorVisible(true)
@@ -95,8 +95,8 @@ function CustomCursor() {
     const handlePointerEnter = (event) => {
       target.x = event.clientX
       target.y = event.clientY
-      position.x = event.clientX
-      position.y = event.clientY
+      motion.x = 0
+      motion.y = 0
       setCursorVisible(true)
     }
 
