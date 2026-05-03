@@ -182,6 +182,7 @@
 
 /* ============ Hero Section ============ */
 .hero {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -374,7 +375,7 @@
 
 /* ============ Export as Video Button ============ */
 .export-btn-wrapper {
-  position: fixed;
+  position: absolute;
   top: 1.4rem;
   right: 1.5rem;
   z-index: 200;

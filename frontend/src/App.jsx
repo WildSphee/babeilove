@@ -121,7 +121,18 @@ function App() {
         const err = await response.json().catch(() => ({}))
         throw new Error(err.error || `Server error ${response.status}`)
       }
+
+      const contentType = response.headers.get('content-type') || ''
+      if (!contentType.includes('video/mp4')) {
+        const message = await response.text().catch(() => '')
+        throw new Error(message || 'Export returned an unexpected response instead of an MP4.')
+      }
+
       const blob = await response.blob()
+      if (blob.size < 1024) {
+        throw new Error('Generated video was empty or incomplete. Please try again.')
+      }
+
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -142,34 +153,6 @@ function App() {
 
   return (
     <div className="app">
-      {/* Export as Video button — fixed top-right */}
-      <div className="export-btn-wrapper">
-        <button
-          className={`export-btn${isExporting ? ' export-btn--loading' : ''}`}
-          onClick={handleExportVideo}
-          disabled={isExporting}
-          title="Export all memories as a video"
-        >
-          {isExporting ? (
-            <>
-              <span className="export-spinner" />
-              Generating…
-            </>
-          ) : (
-            <>
-              <svg className="export-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path d="M2 6a2 2 0 012-2h6l2 2h4a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                <path d="M10 12a1 1 0 01-.707-.293l-2-2a1 1 0 011.414-1.414L10 9.586l1.293-1.293a1 1 0 011.414 1.414l-2 2A1 1 0 0110 12z" />
-              </svg>
-              Export as Video
-            </>
-          )}
-        </button>
-        {exportError && (
-          <p className="export-error">{exportError}</p>
-        )}
-      </div>
-
       {/* Parallax Background */}
       <div className="parallax-bg">
         {/* Light streams */}
@@ -227,6 +210,33 @@ function App() {
       {/* Content */}
       <div className="content">
         <header className="hero">
+          <div className="export-btn-wrapper">
+            <button
+              className={`export-btn${isExporting ? ' export-btn--loading' : ''}`}
+              onClick={handleExportVideo}
+              disabled={isExporting}
+              title="Export all memories as a video"
+            >
+              {isExporting ? (
+                <>
+                  <span className="export-spinner" />
+                  Generating…
+                </>
+              ) : (
+                <>
+                  <svg className="export-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M2 6a2 2 0 012-2h6l2 2h4a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    <path d="M10 12a1 1 0 01-.707-.293l-2-2a1 1 0 011.414-1.414L10 9.586l1.293-1.293a1 1 0 011.414 1.414l-2 2A1 1 0 0110 12z" />
+                  </svg>
+                  Export as Video
+                </>
+              )}
+            </button>
+            {exportError && (
+              <p className="export-error">{exportError}</p>
+            )}
+          </div>
+
           <div className="hero-content">
             <h1>{config?.title || 'Our Love Story'}</h1>
             <p className="hero-subtitle">{config?.subtitle || ''}</p>

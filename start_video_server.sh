@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-cd "$(dirname "$0")"
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT_DIR"
 
 echo "Starting memory video export server on http://127.0.0.1:5050"
 echo ""
@@ -13,4 +14,8 @@ echo "      proxy_read_timeout 600;"
 echo "  }"
 echo ""
 
-poetry run python -m backend.video_server
+if [ -x "$ROOT_DIR/venv/bin/python" ]; then
+  exec "$ROOT_DIR/venv/bin/python" -m backend.video_server
+fi
+
+exec poetry run python -m backend.video_server

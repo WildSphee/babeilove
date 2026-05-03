@@ -3,10 +3,15 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+cd "$ROOT_DIR"
+
+if [ -x "$ROOT_DIR/venv/bin/python" ]; then
+  exec "$ROOT_DIR/venv/bin/python" -m backend.memory_bot
+fi
+
 if ! command -v poetry >/dev/null 2>&1; then
-  echo "poetry is required to start the Telegram bot"
+  echo "No project Python found. Expected ./venv/bin/python or poetry."
   exit 1
 fi
 
-cd "$ROOT_DIR"
-poetry run python -m backend.memory_bot
+exec poetry run python -m backend.memory_bot

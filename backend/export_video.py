@@ -3,7 +3,7 @@
 
 Generates a 1920×1080 MP4 with:
   - Ken Burns (slow zoom-in) per clip
-  - Gradient caption bar with description + date
+  - Side caption panel with description + date
   - Smooth xfade crossfade transitions between clips
   - Fade-in at start, fade-out at end
 
@@ -17,7 +17,6 @@ Output:
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -94,45 +93,53 @@ def date_font(size: int = 34) -> ImageFont.FreeTypeFont:
 # ─── Caption PNG creation ─────────────────────────────────────────────────────
 
 def create_caption_png(description: str, date_str: str, output_path: Path) -> None:
-    """Render a 1920×1080 RGBA PNG: gradient overlay + description + date."""
+    """Render a 1920×1080 RGBA PNG: side caption panel + description + date."""
     img = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
-    # Smooth gradient overlay at the bottom 320px: transparent → near-black
-    overlay_h = 320
-    for y in range(overlay_h):
-        t = y / overlay_h
-        ease = t * t * (3.0 - 2.0 * t)          # smoothstep
-        alpha = int(215 * ease)
-        y_pos = HEIGHT - overlay_h + y
-        draw.line([(0, y_pos), (WIDTH - 1, y_pos)], fill=(8, 4, 20, alpha))
+    panel_width = 620
+    panel_x0 = WIDTH - panel_width
+    panel_color = (13, 8, 26, 208)
+    accent_color = (232, 90, 143, 235)
+    draw.rectangle([(panel_x0, 0), (WIDTH, HEIGHT)], fill=panel_color)
+    draw.rectangle([(panel_x0, 0), (panel_x0 + 12, HEIGHT)], fill=accent_color)
 
     df = desc_font(54)
     dtf = date_font(34)
 
-    # Wrap long descriptions so they fit across 1920px
-    wrapped = textwrap.fill(description, width=44)
+    wrapped = textwrap.fill(description or "Our memory", width=20)
+    text_x = panel_x0 + 68
+    text_y = 180
 
-    # Description — soft drop-shadow then white text, vertically centered in overlay
-    desc_y = HEIGHT - 145
     draw.multiline_text(
-        (WIDTH // 2 + 2, desc_y + 2), wrapped,
-        font=df, fill=(0, 0, 0, 115),
-        anchor="mm", align="center",
+        (text_x + 3, text_y + 3),
+        wrapped,
+        font=df,
+        fill=(0, 0, 0, 110),
+        spacing=16,
     )
     draw.multiline_text(
-        (WIDTH // 2, desc_y), wrapped,
-        font=df, fill=(255, 255, 255, 238),
-        anchor="mm", align="center",
+        (text_x, text_y),
+        wrapped,
+        font=df,
+        fill=(255, 255, 255, 240),
+        spacing=16,
     )
 
-    # Date — soft lilac, below description
-    date_y = HEIGHT - 58
     formatted = format_date(date_str)
-    draw.text((WIDTH // 2 + 1, date_y + 1), formatted,
-              font=dtf, fill=(0, 0, 0, 100), anchor="mm")
-    draw.text((WIDTH // 2, date_y), formatted,
-              font=dtf, fill=(210, 165, 255, 218), anchor="mm")
+    date_y = HEIGHT - 180
+    draw.text(
+        (text_x + 2, date_y + 2),
+        formatted,
+        font=dtf,
+        fill=(0, 0, 0, 100),
+    )
+    draw.text(
+        (text_x, date_y),
+        formatted,
+        font=dtf,
+        fill=(240, 198, 222, 224),
+    )
 
     img.save(str(output_path), "PNG")
 
@@ -306,6 +313,8 @@ def export_video(output_path: Optional[Path] = None) -> Path:
     if output_path is None:
         output_path = DEFAULT_OUTPUT
 
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     print("Loading memories…")
     data = load_memories()
     memories = data.get("memories", [])
@@ -318,6 +327,7 @@ def export_video(output_path: Optional[Path] = None) -> Path:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
         clip_paths: list[Path] = []
+        temp_output_path = tmp_path / output_path.name
 
         for i, memory in enumerate(memories):
             src = MEDIA_DIR / memory["image"]
@@ -347,7 +357,16 @@ def export_video(output_path: Optional[Path] = None) -> Path:
             raise ValueError("No clips could be generated (all source files missing?)")
 
         print(f"Concatenating {len(clip_paths)} clips with crossfade transitions…")
-        concatenate_clips(clip_paths, output_path)
+        concatenate_clips(clip_paths, temp_output_path)
+
+        if not temp_output_path.exists():
+            raise RuntimeError("Video export did not produce an output file.")
+
+        size = temp_output_path.stat().st_size
+        if size < 1024:
+            raise RuntimeError(f"Video export produced an invalid MP4 ({size} bytes).")
+
+        temp_output_path.replace(output_path)
 
     print(f"Done — video saved to: {output_path}")
     return output_path
