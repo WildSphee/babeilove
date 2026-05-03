@@ -5,8 +5,8 @@
 }
 
 :root {
-  --site-cursor-default: url('/usagi-chiikawa-custom-cursor-32.png') 8 8, auto;
-  --site-cursor-pointer: url('/usagi-chiikawa-custom-cursor-32.png') 8 8, pointer;
+  --site-cursor-default: url('/usagi-cursor.png') 16 16, auto;
+  --site-cursor-pointer: url('/usagi-cursor.png') 16 16, pointer;
 }
 
 html {
