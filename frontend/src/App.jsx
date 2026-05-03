@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Gallery from './components/Gallery'
 import Lightbox from './components/Lightbox'
 import './App.css'
@@ -21,6 +21,111 @@ async function loadMemories() {
     }
     return await response.json()
   }
+}
+
+function CustomCursor() {
+  const cursorRef = useRef(null)
+  const visibleRef = useRef(false)
+  const [enabled, setEnabled] = useState(false)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia('(pointer: fine)')
+    const updateEnabled = () => setEnabled(media.matches)
+
+    updateEnabled()
+
+    if (media.addEventListener) {
+      media.addEventListener('change', updateEnabled)
+      return () => media.removeEventListener('change', updateEnabled)
+    }
+
+    media.addListener(updateEnabled)
+    return () => media.removeListener(updateEnabled)
+  }, [])
+
+  useEffect(() => {
+    if (!enabled) return
+
+    const cursor = cursorRef.current
+    if (!cursor) return
+
+    const position = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+    const target = { ...position }
+    let swingPhase = 0
+    let frameId = 0
+
+    const setCursorVisible = (nextVisible) => {
+      if (visibleRef.current === nextVisible) return
+      visibleRef.current = nextVisible
+      setVisible(nextVisible)
+    }
+
+    const animate = () => {
+      position.x += (target.x - position.x) * 0.18
+      position.y += (target.y - position.y) * 0.18
+
+      const dx = target.x - position.x
+      const dy = target.y - position.y
+      const speed = Math.hypot(dx, dy)
+
+      swingPhase += Math.min(speed * 0.05, 0.3)
+      const sway = Math.sin(swingPhase) * Math.min(speed * 0.16, 8)
+      const tilt = Math.max(-16, Math.min(16, dx * 0.18 + sway))
+      const stretch = Math.min(speed * 0.008, 0.12)
+
+      cursor.style.transform = [
+        `translate3d(${position.x}px, ${position.y}px, 0)`,
+        'translate(-28%, -18%)',
+        `rotate(${tilt}deg)`,
+        `scaleX(${1 + stretch})`,
+        `scaleY(${1 - stretch * 0.55})`
+      ].join(' ')
+
+      frameId = window.requestAnimationFrame(animate)
+    }
+
+    const handlePointerMove = (event) => {
+      target.x = event.clientX
+      target.y = event.clientY
+      setCursorVisible(true)
+    }
+
+    const handlePointerLeave = () => setCursorVisible(false)
+    const handlePointerEnter = (event) => {
+      target.x = event.clientX
+      target.y = event.clientY
+      position.x = event.clientX
+      position.y = event.clientY
+      setCursorVisible(true)
+    }
+
+    frameId = window.requestAnimationFrame(animate)
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    window.addEventListener('pointerleave', handlePointerLeave)
+    window.addEventListener('pointerenter', handlePointerEnter)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerleave', handlePointerLeave)
+      window.removeEventListener('pointerenter', handlePointerEnter)
+      visibleRef.current = false
+      setVisible(false)
+    }
+  }, [enabled])
+
+  if (!enabled) return null
+
+  return (
+    <div
+      ref={cursorRef}
+      className={`custom-cursor${visible ? ' custom-cursor--visible' : ''}`}
+      aria-hidden="true"
+    >
+      <img src="/usagi-cursor.png" alt="" draggable="false" />
+    </div>
+  )
 }
 
 function App() {
@@ -157,6 +262,8 @@ function App() {
 
   return (
     <div className="app">
+      <CustomCursor />
+
       {/* Parallax Background */}
       <div className="parallax-bg">
         {/* Light streams */}
