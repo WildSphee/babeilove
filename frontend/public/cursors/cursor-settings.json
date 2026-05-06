@@ -24,6 +24,18 @@
         "image": "/cursors/kawaii-chiikawa-kurimanju-pointer.png",
         "hotspot": [6, 2]
       }
+    },
+    {
+      "id": "turtle-usagi-dolphin",
+      "label": "Turtle Usagi Dolphin",
+      "default": {
+        "image": "/cursors/chiikawa-turtle-usagi-dolphin-cursor.png",
+        "hotspot": [4, 4]
+      },
+      "hover": {
+        "image": "/cursors/chiikawa-turtle-usagi-dolphin-pointer.png",
+        "hotspot": [6, 2]
+      }
     }
   ]
 }
