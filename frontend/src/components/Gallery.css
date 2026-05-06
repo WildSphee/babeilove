@@ -38,6 +38,12 @@
   transition: box-shadow 0.4s ease;
 }
 
+.gallery-media,
+.gallery-media img,
+.gallery-media video {
+  cursor: var(--app-cursor-hover);
+}
+
 .gallery-media:hover {
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.15),
