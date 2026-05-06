@@ -1,0 +1,29 @@
+{
+  "defaultTheme": "usagi",
+  "themes": [
+    {
+      "id": "usagi",
+      "label": "Happy Usagi",
+      "default": {
+        "image": "/cursors/cursor-usagi-default.png",
+        "hotspot": [4, 4]
+      },
+      "hover": {
+        "image": "/cursors/cursor-usagi-hover.png",
+        "hotspot": [6, 2]
+      }
+    },
+    {
+      "id": "kurimanju",
+      "label": "Kurimanju",
+      "default": {
+        "image": "/cursors/kawaii-chiikawa-kurimanju-cursor.png",
+        "hotspot": [4, 4]
+      },
+      "hover": {
+        "image": "/cursors/kawaii-chiikawa-kurimanju-pointer.png",
+        "hotspot": [6, 2]
+      }
+    }
+  ]
+}

@@ -4,6 +4,11 @@
   padding: 0;
 }
 
+:root {
+  --app-cursor-default: url("/cursors/cursor-usagi-default.png") 4 4, auto;
+  --app-cursor-hover: url("/cursors/cursor-usagi-hover.png") 6 2, pointer;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -18,6 +23,27 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+html,
+body {
+  cursor: var(--app-cursor-default);
+}
+
+a,
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+label[for],
+summary,
+select,
+.gallery-media,
+.lightbox-backdrop,
+.lightbox-close,
+.lightbox-nav {
+  cursor: var(--app-cursor-hover);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -6,8 +6,40 @@ import './App.css'
 const baseUrl = import.meta.env.BASE_URL || '/'
 const memoriesUrl = `${baseUrl}media/memories.json`
 const memoriesModuleUrl = `${baseUrl}media/memories.js`
+const cursorSettingsUrl = `${baseUrl}cursors/cursor-settings.json`
 const mediaUrl = (filename) => `${baseUrl}media/${filename}`
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
+const cursorThemeCookieName = 'babeilove_cursor_theme'
+
+const fallbackCursorSettings = {
+  defaultTheme: 'usagi',
+  themes: [
+    {
+      id: 'usagi',
+      label: 'Happy Usagi',
+      default: {
+        image: '/cursors/cursor-usagi-default.png',
+        hotspot: [4, 4]
+      },
+      hover: {
+        image: '/cursors/cursor-usagi-hover.png',
+        hotspot: [6, 2]
+      }
+    },
+    {
+      id: 'kurimanju',
+      label: 'Kurimanju',
+      default: {
+        image: '/cursors/kawaii-chiikawa-kurimanju-cursor.png',
+        hotspot: [4, 4]
+      },
+      hover: {
+        image: '/cursors/kawaii-chiikawa-kurimanju-pointer.png',
+        hotspot: [6, 2]
+      }
+    }
+  ]
+}
 
 async function loadMemories() {
   try {
@@ -23,9 +55,56 @@ async function loadMemories() {
   }
 }
 
+async function loadCursorSettings() {
+  const response = await fetch(cursorSettingsUrl, { cache: 'no-store' })
+  if (!response.ok) {
+    throw new Error(`Failed to load cursor settings: HTTP ${response.status}`)
+  }
+  return await response.json()
+}
+
+function readCookie(name) {
+  const value = document.cookie
+    .split('; ')
+    .find((item) => item.startsWith(`${name}=`))
+
+  return value ? decodeURIComponent(value.split('=').slice(1).join('=')) : null
+}
+
+function writeCookie(name, value) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=31536000; path=/; SameSite=Lax`
+}
+
+function resolveAssetUrl(path) {
+  if (!path) return ''
+  if (/^https?:\/\//.test(path)) return path
+  return `${baseUrl}${path.replace(/^\/+/, '')}`
+}
+
+function buildCursorValue(cursor, fallback) {
+  if (!cursor?.image) return fallback
+
+  const [hotspotX = 0, hotspotY = 0] = Array.isArray(cursor.hotspot) ? cursor.hotspot : []
+  return `url("${resolveAssetUrl(cursor.image)}") ${hotspotX} ${hotspotY}, ${fallback}`
+}
+
+function applyCursorTheme(theme) {
+  if (!theme) return
+
+  const root = document.documentElement
+  root.style.setProperty('--app-cursor-default', buildCursorValue(theme.default, 'auto'))
+  root.style.setProperty('--app-cursor-hover', buildCursorValue(theme.hover, 'pointer'))
+}
+
+function findThemeById(themes, themeId) {
+  return themes.find((theme) => theme.id === themeId) || null
+}
+
 function App() {
   const [memories, setMemories] = useState([])
   const [config, setConfig] = useState(null)
+  const [cursorThemes, setCursorThemes] = useState(fallbackCursorSettings.themes)
+  const [activeCursorThemeId, setActiveCursorThemeId] = useState(() => readCookie(cursorThemeCookieName) || fallbackCursorSettings.defaultTheme)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [scrollY, setScrollY] = useState(0)
@@ -46,6 +125,53 @@ function App() {
       })
       .catch(err => console.error('Failed to load memories:', err))
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    loadCursorSettings()
+      .then((data) => {
+        const themes = Array.isArray(data?.themes) && data.themes.length > 0
+          ? data.themes
+          : fallbackCursorSettings.themes
+        const storedThemeId = readCookie(cursorThemeCookieName)
+        const defaultThemeId = data?.defaultTheme || fallbackCursorSettings.defaultTheme
+        const nextThemeId = findThemeById(themes, storedThemeId)
+          ? storedThemeId
+          : findThemeById(themes, defaultThemeId)?.id || themes[0].id
+
+        if (cancelled) return
+
+        setCursorThemes(themes)
+        setActiveCursorThemeId(nextThemeId)
+      })
+      .catch((error) => {
+        console.warn('Falling back to built-in cursor settings:', error)
+
+        if (cancelled) return
+
+        const storedThemeId = readCookie(cursorThemeCookieName)
+        const nextThemeId = findThemeById(fallbackCursorSettings.themes, storedThemeId)
+          ? storedThemeId
+          : fallbackCursorSettings.defaultTheme
+
+        setCursorThemes(fallbackCursorSettings.themes)
+        setActiveCursorThemeId(nextThemeId)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const activeCursorTheme = findThemeById(cursorThemes, activeCursorThemeId) || cursorThemes[0] || null
+
+  useEffect(() => {
+    if (!activeCursorTheme) return
+
+    applyCursorTheme(activeCursorTheme)
+    writeCookie(cursorThemeCookieName, activeCursorTheme.id)
+  }, [activeCursorTheme])
 
   // Calculate time together
   useEffect(() => {
@@ -111,6 +237,14 @@ function App() {
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev < memories.length - 1 ? prev + 1 : prev))
+  }
+
+  const handleCursorThemeToggle = () => {
+    if (cursorThemes.length < 2) return
+
+    const currentIndex = cursorThemes.findIndex((theme) => theme.id === activeCursorThemeId)
+    const nextTheme = cursorThemes[(currentIndex + 1 + cursorThemes.length) % cursorThemes.length] || cursorThemes[0]
+    setActiveCursorThemeId(nextTheme.id)
   }
 
   const handleExportVideo = async () => {
@@ -242,7 +376,20 @@ function App() {
           </div>
 
           <div className="hero-content">
-            <h1>{config?.title || 'Our Love Story'}</h1>
+            <h1 className="hero-title-heading">
+              <button
+                type="button"
+                className="hero-title-button"
+                onClick={handleCursorThemeToggle}
+                title={`Toggle cursor theme. Current: ${activeCursorTheme?.label || 'Happy Usagi'}`}
+                aria-label={`Toggle cursor theme. Current: ${activeCursorTheme?.label || 'Happy Usagi'}`}
+              >
+                <span className="hero-title-text">{config?.title || 'Our Love Story'}</span>
+                <span className="hero-title-hint">
+                  Cursor: {activeCursorTheme?.label || 'Happy Usagi'} - tap to switch
+                </span>
+              </button>
+            </h1>
             <p className="hero-subtitle">{config?.subtitle || ''}</p>
 
             {/* Time Together Counter */}
