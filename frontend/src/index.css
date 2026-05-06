@@ -20,55 +20,6 @@ body {
   min-height: 100vh;
 }
 
-.custom-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 42px;
-  height: 42px;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 3000;
-  will-change: transform, opacity;
-  transition: opacity 0.18s ease;
-}
-
-.custom-cursor--visible {
-  opacity: 1;
-}
-
-.custom-cursor img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 8px 10px rgba(232, 90, 143, 0.18));
-  user-select: none;
-}
-
-@media (pointer: fine) {
-  html,
-  body,
-  a,
-  button,
-  [role="button"],
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"],
-  label[for],
-  summary,
-  .gallery-media,
-  .lightbox-backdrop {
-    cursor: none !important;
-  }
-}
-
-@media (pointer: coarse) {
-  .custom-cursor {
-    display: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -8,7 +8,6 @@ The frontend stays static. A separate Python Telegram bot can now manage the mem
 
 - Alternating left/right gallery layout
 - Parallax background with animated light streams
-- Interactive cursor-reactive image tilt effects
 - Lightbox modal with blur backdrop
 - Custom handwritten fonts
 - Mobile-friendly and touch-optimized
