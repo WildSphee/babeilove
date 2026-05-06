@@ -31,19 +31,27 @@ body {
 }
 
 a,
+a *,
 button,
+button *,
 [role="button"],
+[role="button"] *,
 input[type="button"],
 input[type="submit"],
 input[type="reset"],
 label[for],
+label[for] *,
 summary,
+summary *,
 select,
 .gallery-media,
+.gallery-media *,
 .lightbox-backdrop,
 .lightbox-close,
-.lightbox-nav {
-  cursor: var(--app-cursor-hover);
+.lightbox-close *,
+.lightbox-nav,
+.lightbox-nav * {
+  cursor: var(--app-cursor-hover) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

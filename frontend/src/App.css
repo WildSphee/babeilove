@@ -430,7 +430,7 @@
   border-radius: 2rem;
   font-family: 'Papernotes', sans-serif;
   font-size: 0.95rem;
-  cursor: pointer;
+  cursor: var(--app-cursor-hover);
   box-shadow:
     0 4px 18px rgba(168, 85, 247, 0.45),
     0 1px 4px rgba(0, 0, 0, 0.12);
@@ -453,7 +453,7 @@
 
 .export-btn:disabled {
   opacity: 0.82;
-  cursor: wait;
+  cursor: var(--app-cursor-hover);
 }
 
 .export-icon {
