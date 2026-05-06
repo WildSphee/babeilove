@@ -397,9 +397,6 @@ function App() {
                 aria-label={`Toggle cursor theme. Current: ${activeCursorTheme?.label || 'Happy Usagi'}`}
               >
                 <span className="hero-title-text">{config?.title || 'Our Love Story'}</span>
-                <span className="hero-title-hint">
-                  Cursor: {activeCursorTheme?.label || 'Happy Usagi'} - tap to switch
-                </span>
               </button>
             </h1>
             <p className="hero-subtitle">{config?.subtitle || ''}</p>
