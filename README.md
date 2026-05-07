@@ -24,7 +24,7 @@ This starts the Vite frontend at `http://localhost:5234`.
 
 The bot uses polling and writes directly to:
 
-- `frontend/public/media/memories.json`
+- `frontend/public/media/memories.js`
 - `frontend/public/media/*`
 
 Backend files:
@@ -67,7 +67,7 @@ poetry install
 
 ```dotenv
 TELEGRAM_BOT_TOKEN=your_bot_token_here
-TELEGRAM_ALLOWED_USERNAMES=reagan_c,audikor
+TELEGRAM_ALLOWED_USERNAMES=handle1,handle2
 POST_UPDATE_COMMAND=./build.sh
 ```
 
@@ -116,10 +116,10 @@ If you do not want to use `/api` on the same origin, set `VITE_API_BASE_URL` for
 
 1. Add your photos to `frontend/public/media/`
 
-2. Edit `frontend/public/media/memories.json`:
+2. Edit `frontend/public/media/memories.js`:
 
-```json
-{
+```js
+export default {
   "config": {
     "title": "Our Love Story"
   },
@@ -135,7 +135,7 @@ If you do not want to use `/api` on the same origin, set `VITE_API_BASE_URL` for
       "description": "Summer vacation by the beach"
     }
   ]
-}
+};
 ```
 
 ## Fonts

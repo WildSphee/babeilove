@@ -16,7 +16,6 @@ Output:
 
 from __future__ import annotations
 
-import json
 import subprocess
 import sys
 import tempfile
@@ -26,6 +25,8 @@ from pathlib import Path
 from typing import Optional
 
 from PIL import Image, ImageDraw, ImageFont
+
+from .storage import read_memories_module
 
 REPO_ROOT = Path(__file__).parent.parent
 MEDIA_DIR = REPO_ROOT / "frontend" / "public" / "media"
@@ -44,8 +45,7 @@ VIDEO_EXTS = {".mp4", ".mov", ".webm", ".ogg", ".m4v"}
 # ─── Data helpers ────────────────────────────────────────────────────────────
 
 def load_memories() -> dict:
-    with open(MEDIA_DIR / "memories.json") as f:
-        return json.load(f)
+    return read_memories_module(MEDIA_DIR / "memories.js")
 
 
 def format_date(date_str: str) -> str:
@@ -320,7 +320,7 @@ def export_video(output_path: Optional[Path] = None) -> Path:
     memories = data.get("memories", [])
 
     if not memories:
-        raise ValueError("No memories found in memories.json")
+        raise ValueError("No memories found in memories.js")
 
     print(f"Generating video for {len(memories)} memories…")
 

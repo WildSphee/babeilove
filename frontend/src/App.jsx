@@ -5,7 +5,6 @@ import FootstepTrail from './components/FootstepTrail'
 import './App.css'
 
 const baseUrl = import.meta.env.BASE_URL || '/'
-const memoriesUrl = `${baseUrl}media/memories.json`
 const memoriesModuleUrl = `${baseUrl}media/memories.js`
 const cursorSettingsUrl = `${baseUrl}cursors/cursor-settings.json`
 const mediaUrl = (filename) => `${baseUrl}media/${filename}`
@@ -55,17 +54,8 @@ const fallbackCursorSettings = {
 }
 
 async function loadMemories() {
-  try {
-    const module = await import(/* @vite-ignore */ `${memoriesModuleUrl}?t=${Date.now()}`)
-    return module.default
-  } catch (error) {
-    console.warn('Falling back to media/memories.json because media/memories.js failed:', error)
-    const response = await fetch(memoriesUrl)
-    if (!response.ok) {
-      throw new Error(`Failed to load memories: HTTP ${response.status}`)
-    }
-    return await response.json()
-  }
+  const module = await import(/* @vite-ignore */ `${memoriesModuleUrl}?t=${Date.now()}`)
+  return module.default
 }
 
 async function loadCursorSettings() {
