@@ -33,10 +33,10 @@ function measureDocumentHeight() {
 }
 
 function createFootsteps(count, viewportWidth, viewportHeight, documentHeight) {
-  const stepSize = clamp(viewportWidth * 0.09, 42, 76)
-  const stepSpacing = clamp(viewportWidth * 0.18, 80, 118)
-  const pathDrift = clamp(viewportWidth * 0.055, 14, 44)
-  const pathOffset = stepSize * 0.28
+  const stepSize = clamp(viewportWidth * 0.12, 56, 96)
+  const stepSpacing = clamp(viewportWidth * 0.25, 118, 168)
+  const pathRadius = clamp(viewportWidth * 0.13, 44, 138)
+  const pathOffset = stepSize * 0.44
   const startY = viewportHeight * 0.6
   const endY = documentHeight - stepSize * 1.8
   const steps = []
@@ -46,10 +46,10 @@ function createFootsteps(count, viewportWidth, viewportHeight, documentHeight) {
     if (top > endY) break
 
     const isLeft = index % 2 === 0
-    const drift = Math.sin(index * 0.75) * pathDrift
-    const centerBias = Math.sin(index * 0.28) * pathDrift * 0.45
-    const x = viewportWidth / 2 + drift + centerBias + (isLeft ? -pathOffset : pathOffset)
-    const rotation = (isLeft ? -20 : 20) + Math.sin(index * 0.55) * 7
+    const orbit = Math.sin(index * 0.42) * pathRadius
+    const counterOrbit = Math.cos(index * 0.22) * pathRadius * 0.38
+    const x = viewportWidth / 2 + orbit + counterOrbit + (isLeft ? -pathOffset : pathOffset)
+    const rotation = 90 + (isLeft ? -14 : 14) + Math.sin(index * 0.38) * 6
 
     steps.push({
       id: index,

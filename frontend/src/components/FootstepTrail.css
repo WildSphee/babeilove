@@ -19,14 +19,14 @@
   ) rotate(var(--footstep-rotation));
   opacity: 0;
   animation: footstep-appear 420ms ease-out forwards;
-  filter: drop-shadow(0 12px 18px rgba(125, 90, 120, 0.08));
+  filter: drop-shadow(0 12px 18px rgba(113, 83, 55, 0.12));
 }
 
 .footstep-svg {
   width: 100%;
   height: 100%;
   display: block;
-  fill: rgba(169, 111, 143, 0.18);
+  fill: rgba(137, 98, 63, 0.22);
 }
 
 .footstep--right .footstep-svg {
@@ -58,7 +58,7 @@
   }
 
   .footstep-svg {
-    fill: rgba(169, 111, 143, 0.16);
+    fill: rgba(137, 98, 63, 0.2);
   }
 }
 
