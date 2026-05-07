@@ -15,6 +15,11 @@ export default {
       "description": "BABE MADE ME A PRETTY EYEBROW MAN >:))"
     },
     {
+      "image": "memory-20260502-061433-749176.jpg",
+      "date": "2026-05-01",
+      "description": "Nusa Laut! Wa sedap oxtail sup buntot broooooooooo"
+    },
+    {
       "image": "memory-20260506-112752-338976.jpg",
       "date": "2026-05-01",
       "description": "Skeebeedee or creeper"
@@ -30,24 +35,19 @@ export default {
       "description": "School shooter"
     },
     {
-      "image": "memory-20260502-061433-749176.jpg",
-      "date": "2026-05-01",
-      "description": "Nusa Laut! Wa sedap oxtail sup buntot broooooooooo"
-    },
-    {
       "image": "memory-20260428-070757-813890.jpg",
       "date": "2026-04-28",
       "description": "Skibidi toilet yakun"
     },
     {
-      "image": "memory-20260427-131252-933292.jpg",
-      "date": "2026-04-26",
-      "description": "SING K BROOOOOOO FIRE"
-    },
-    {
       "image": "memory-20260427-131148-941770.jpg",
       "date": "2026-04-26",
       "description": "Dinner @Pete’s Place and Reagan saw Pete"
+    },
+    {
+      "image": "memory-20260427-131252-933292.jpg",
+      "date": "2026-04-26",
+      "description": "SING K BROOOOOOO FIRE"
     },
     {
       "image": "memory-20260425-063246-540635.jpg",
@@ -65,6 +65,11 @@ export default {
       "description": "wat"
     },
     {
+      "image": "memory-20260414-041629-538521.jpg",
+      "date": "2026-04-12",
+      "description": "Lovely dinner at Fico, celebrating our 4th monthsary and Reagan’s achievement! He’s amazing!"
+    },
+    {
       "image": "memory-20260501-100430-239842.jpg",
       "date": "2026-04-12",
       "description": "WAS GONNA BE MORPHEUS"
@@ -73,11 +78,6 @@ export default {
       "image": "memory-20260414-042318-106617.jpg",
       "date": "2026-04-12",
       "description": "BRO"
-    },
-    {
-      "image": "memory-20260414-041629-538521.jpg",
-      "date": "2026-04-12",
-      "description": "Lovely dinner at Fico, celebrating our 4th monthsary and Reagan’s achievement! He’s amazing!"
     },
     {
       "image": "memory-20260414-042026-193530.jpg",
@@ -240,14 +240,14 @@ export default {
       "description": "Taking picture with creepy santa over at Great Worlds"
     },
     {
-      "image": "-6195065415235472735_119.jpg",
-      "date": "2025-12-14",
-      "description": "This one holds a special place in my heart~"
-    },
-    {
       "image": "-6195065415235472732_119.jpg",
       "date": "2025-12-14",
       "description": "I won't trade anything for you babe <3"
+    },
+    {
+      "image": "-6195065415235472735_119.jpg",
+      "date": "2025-12-14",
+      "description": "This one holds a special place in my heart~"
     },
     {
       "image": "20251210_190244.jpg",
