@@ -10,6 +10,11 @@ export default {
   },
   "memories": [
     {
+      "image": "memory-20260506-154522-858847.jpg",
+      "date": "2026-05-06",
+      "description": "BABE MADE ME A PRETTY EYEBROW MAN >:))"
+    },
+    {
       "image": "memory-20260506-112752-338976.jpg",
       "date": "2026-05-01",
       "description": "Skeebeedee or creeper"
