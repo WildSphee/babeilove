@@ -8,7 +8,6 @@ const baseUrl = import.meta.env.BASE_URL || '/'
 const memoriesModuleUrl = `${baseUrl}media/memories.js`
 const cursorSettingsUrl = `${baseUrl}cursors/cursor-settings.json`
 const mediaUrl = (filename) => `${baseUrl}media/${filename}`
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 const cursorThemeCookieName = 'babeilove_cursor_theme'
 
 const fallbackCursorSettings = {
@@ -144,8 +143,6 @@ function App() {
   const [scrollY, setScrollY] = useState(0)
   const [maxScrollYReached, setMaxScrollYReached] = useState(0)
   const [timeTogether, setTimeTogether] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  const [isExporting, setIsExporting] = useState(false)
-  const [exportError, setExportError] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -302,45 +299,6 @@ function App() {
     setActiveCursorThemeId(nextTheme.id)
   }
 
-  const handleExportVideo = async () => {
-    setIsExporting(true)
-    setExportError(null)
-    try {
-      const response = await fetch(`${apiBaseUrl}/export-video`)
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}))
-        throw new Error(err.error || `Server error ${response.status}`)
-      }
-
-      const contentType = response.headers.get('content-type') || ''
-      if (!contentType.includes('video/mp4')) {
-        const message = await response.text().catch(() => '')
-        if (contentType.includes('text/html')) {
-          throw new Error('Export endpoint returned the website HTML instead of an MP4. /api is not reaching backend.video_server yet.')
-        }
-        throw new Error(message || 'Export returned an unexpected response instead of an MP4.')
-      }
-
-      const blob = await response.blob()
-      if (blob.size < 1024) {
-        throw new Error('Generated video was empty or incomplete. Please try again.')
-      }
-
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'our-memories.mp4'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    } catch (err) {
-      setExportError(err.message || 'Export failed — please try again.')
-    } finally {
-      setIsExporting(false)
-    }
-  }
-
   // Calculate scroll progress for parallax effects
   const scrollProgress = Math.min(scrollY / 1000, 1)
   const memoryBatches = groupMemoriesByDate(flatMemories)
@@ -409,33 +367,6 @@ function App() {
       {/* Content */}
       <div className="content">
         <header className="hero">
-          <div className="export-btn-wrapper">
-            <button
-              className="export-btn"
-              onClick={handleExportVideo}
-              disabled={isExporting}
-              title="Export all memories as a video"
-            >
-              {isExporting ? (
-                <>
-                  <span className="export-spinner" />
-                  Generating…
-                </>
-              ) : (
-                <>
-                  <svg className="export-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path d="M2 6a2 2 0 012-2h6l2 2h4a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                    <path d="M10 12a1 1 0 01-.707-.293l-2-2a1 1 0 011.414-1.414L10 9.586l1.293-1.293a1 1 0 011.414 1.414l-2 2A1 1 0 0110 12z" />
-                  </svg>
-                  Export as Video
-                </>
-              )}
-            </button>
-            {exportError && (
-              <p className="export-error">{exportError}</p>
-            )}
-          </div>
-
           <div className="hero-content">
             <h1 className="hero-title-heading">
               <button
