@@ -64,7 +64,6 @@
   border: none;
   background: transparent;
   cursor: var(--app-cursor-hover);
-  -webkit-tap-highlight-color: transparent;
 }
 
 .gallery-media-button:not(.is-stacked) {

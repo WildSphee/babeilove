@@ -33,7 +33,7 @@ function measureDocumentHeight() {
 }
 
 function createFootsteps(count, viewportWidth, viewportHeight, documentHeight) {
-  const stepSize = clamp(viewportWidth * 0.12, 56, 96)
+  const stepSize = clamp(viewportWidth * 0.144, 67, 115)
   const stepSpacing = clamp(viewportWidth * 0.25, 118, 168)
   const pathRadius = clamp(viewportWidth * 0.18, 64, 190)
   const pathOffset = stepSize * 0.44
@@ -49,7 +49,7 @@ function createFootsteps(count, viewportWidth, viewportHeight, documentHeight) {
     const orbit = Math.sin(index * 0.42) * pathRadius
     const counterOrbit = Math.cos(index * 0.22) * pathRadius * 0.38
     const x = viewportWidth / 2 + orbit + counterOrbit + (isLeft ? -pathOffset : pathOffset)
-    const rotation = 90 + (isLeft ? -14 : 14) + Math.sin(index * 0.38) * 6
+    const rotation = 90 + (isLeft ? -16.1 : 16.1) + Math.sin(index * 0.38) * 6
 
     steps.push({
       id: index,

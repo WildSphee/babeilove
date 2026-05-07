@@ -10,6 +10,7 @@
 }
 
 html {
+  -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
 }
 
@@ -44,6 +45,8 @@ label[for] *,
 summary,
 summary *,
 select,
+img,
+video,
 .gallery-media,
 .gallery-media *,
 .gallery-media-button,
@@ -54,6 +57,7 @@ select,
 .lightbox-nav,
 .lightbox-nav * {
   cursor: var(--app-cursor-hover) !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
