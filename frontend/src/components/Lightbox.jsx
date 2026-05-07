@@ -20,9 +20,9 @@ function Lightbox({ isOpen, memories, currentIndex, onClose, onPrevious, onNext 
   const memory = memories[currentIndex]
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!isOpen) return
+    if (!isOpen) return undefined
 
+    const handleKeyDown = (e) => {
       switch (e.key) {
         case 'Escape':
           onClose()
@@ -41,42 +41,42 @@ function Lightbox({ isOpen, memories, currentIndex, onClose, onPrevious, onNext 
   }, [isOpen, onClose, onPrevious, onNext])
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-      if (videoRef.current) {
-        videoRef.current.pause()
-      }
-    }
+    if (!isOpen) return undefined
+
+    const previousOverflow = document.body.style.overflow
+    const videoElement = videoRef.current
+    document.body.style.overflow = 'hidden'
 
     return () => {
-      document.body.style.overflow = ''
+      document.body.style.overflow = previousOverflow
+      if (videoElement) {
+        videoElement.pause()
+      }
     }
   }, [isOpen])
 
-  if (!memory) return null
+  if (!isOpen || !memory) return null
 
   const isVideo = isVideoFile(memory.image || '')
   const hasPrevious = currentIndex > 0
   const hasNext = currentIndex < memories.length - 1
 
   return (
-    <div className={`lightbox ${isOpen ? 'open' : ''}`}>
+    <div className="lightbox">
       <div className="lightbox-backdrop" onClick={onClose} />
 
-      <button className="lightbox-close" onClick={onClose}>
+      <button type="button" className="lightbox-close" onClick={onClose} aria-label="Close memory viewer">
         &times;
       </button>
 
       {hasPrevious && (
-        <button className="lightbox-nav lightbox-prev" onClick={onPrevious}>
+        <button type="button" className="lightbox-nav lightbox-prev" onClick={onPrevious} aria-label="View previous memory">
           &lsaquo;
         </button>
       )}
 
       {hasNext && (
-        <button className="lightbox-nav lightbox-next" onClick={onNext}>
+        <button type="button" className="lightbox-nav lightbox-next" onClick={onNext} aria-label="View next memory">
           &rsaquo;
         </button>
       )}

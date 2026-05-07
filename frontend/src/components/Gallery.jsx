@@ -15,7 +15,7 @@ function isVideo(filename) {
   return videoExtensions.some(ext => filename.toLowerCase().endsWith(ext))
 }
 
-function GalleryMedia({ memory, onImageClick, stacked = false, stackIndex = 0, totalLayers = 1 }) {
+function GalleryMedia({ memory, onImageClick, stacked = false, zIndex }) {
   const mediaIsVideo = isVideo(memory.image || '')
 
   return (
@@ -23,11 +23,7 @@ function GalleryMedia({ memory, onImageClick, stacked = false, stackIndex = 0, t
       type="button"
       className={`gallery-media-button${stacked ? ' is-stacked' : ''}`}
       onClick={() => onImageClick(memory.flatIndex)}
-      style={{
-        '--stack-index': stackIndex,
-        '--stack-depth': totalLayers - stackIndex - 1,
-        zIndex: totalLayers - stackIndex
-      }}
+      style={zIndex ? { zIndex } : undefined}
       aria-label={`Open memory from ${formatDate(memory.date)}`}
     >
       <div className={`gallery-media-frame${stacked ? ' gallery-media-frame--stacked' : ''}`}>
@@ -76,8 +72,7 @@ function GalleryCard({ batch, onImageClick }) {
                 memory={item}
                 onImageClick={onImageClick}
                 stacked
-                stackIndex={stackIndex}
-                totalLayers={visibleItems.length}
+                zIndex={visibleItems.length - stackIndex}
               />
             ))}
             {batch.items.length > visibleItems.length && (

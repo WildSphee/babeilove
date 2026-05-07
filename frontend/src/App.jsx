@@ -158,8 +158,12 @@ function App() {
   const [exportError, setExportError] = useState(null)
 
   useEffect(() => {
+    let cancelled = false
+
     loadMemories()
-      .then(data => {
+      .then((data) => {
+        if (cancelled) return
+
         setConfig(data.config)
         const transformed = data.memories.map(item => ({
           ...item,
@@ -168,7 +172,15 @@ function App() {
         }))
         setFlatMemories(transformed)
       })
-      .catch(err => console.error('Failed to load memories:', err))
+      .catch((err) => {
+        if (!cancelled) {
+          console.error('Failed to load memories:', err)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
@@ -252,10 +264,11 @@ function App() {
 
   useEffect(() => {
     let ticking = false
+    let frameId = 0
 
     const handleScroll = () => {
       if (!ticking) {
-        requestAnimationFrame(() => {
+        frameId = window.requestAnimationFrame(() => {
           const nextScrollY = window.scrollY
           setScrollY(nextScrollY)
           setMaxScrollYReached((previousScrollY) => Math.max(previousScrollY, nextScrollY))
@@ -265,8 +278,13 @@ function App() {
       }
     }
 
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   const openLightbox = (index) => {
@@ -289,8 +307,8 @@ function App() {
   const handleCursorThemeToggle = () => {
     if (cursorThemes.length < 2) return
 
-    const currentIndex = cursorThemes.findIndex((theme) => theme.id === activeCursorThemeId)
-    const nextTheme = cursorThemes[(currentIndex + 1 + cursorThemes.length) % cursorThemes.length] || cursorThemes[0]
+    const currentThemeIndex = cursorThemes.findIndex((theme) => theme.id === activeCursorThemeId)
+    const nextTheme = cursorThemes[(currentThemeIndex + 1 + cursorThemes.length) % cursorThemes.length] || cursorThemes[0]
     setActiveCursorThemeId(nextTheme.id)
   }
 
@@ -403,7 +421,7 @@ function App() {
         <header className="hero">
           <div className="export-btn-wrapper">
             <button
-              className={`export-btn${isExporting ? ' export-btn--loading' : ''}`}
+              className="export-btn"
               onClick={handleExportVideo}
               disabled={isExporting}
               title="Export all memories as a video"
