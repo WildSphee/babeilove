@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Gallery from './components/Gallery'
 import Lightbox from './components/Lightbox'
+import FootstepTrail from './components/FootstepTrail'
 import './App.css'
 
 const baseUrl = import.meta.env.BASE_URL || '/'
@@ -112,14 +113,46 @@ function findThemeById(themes, themeId) {
   return themes.find((theme) => theme.id === themeId) || null
 }
 
+function groupMemoriesByDate(memories) {
+  const batches = []
+  let currentBatch = null
+
+  memories.forEach((memory, flatIndex) => {
+    if (!currentBatch || currentBatch.date !== memory.date) {
+      currentBatch = {
+        date: memory.date,
+        items: [],
+        coverItem: null
+      }
+      batches.push(currentBatch)
+    }
+
+    const batchItem = {
+      ...memory,
+      flatIndex
+    }
+
+    currentBatch.items.push(batchItem)
+    if (!currentBatch.coverItem) {
+      currentBatch.coverItem = batchItem
+    }
+  })
+
+  return batches.map((batch, index) => ({
+    ...batch,
+    layoutVariant: index % 2 === 0 ? 'image-left' : 'image-right'
+  }))
+}
+
 function App() {
-  const [memories, setMemories] = useState([])
+  const [flatMemories, setFlatMemories] = useState([])
   const [config, setConfig] = useState(null)
   const [cursorThemes, setCursorThemes] = useState(fallbackCursorSettings.themes)
   const [activeCursorThemeId, setActiveCursorThemeId] = useState(() => readCookie(cursorThemeCookieName) || fallbackCursorSettings.defaultTheme)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [scrollY, setScrollY] = useState(0)
+  const [maxScrollYReached, setMaxScrollYReached] = useState(0)
   const [timeTogether, setTimeTogether] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState(null)
@@ -133,7 +166,7 @@ function App() {
           mediaPath: mediaUrl(item.image),
           caption: item.description
         }))
-        setMemories(transformed)
+        setFlatMemories(transformed)
       })
       .catch(err => console.error('Failed to load memories:', err))
   }, [])
@@ -223,7 +256,9 @@ function App() {
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          setScrollY(window.scrollY)
+          const nextScrollY = window.scrollY
+          setScrollY(nextScrollY)
+          setMaxScrollYReached((previousScrollY) => Math.max(previousScrollY, nextScrollY))
           ticking = false
         })
         ticking = true
@@ -248,7 +283,7 @@ function App() {
   }
 
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev < memories.length - 1 ? prev + 1 : prev))
+    setCurrentIndex((prev) => (prev < flatMemories.length - 1 ? prev + 1 : prev))
   }
 
   const handleCursorThemeToggle = () => {
@@ -300,6 +335,7 @@ function App() {
 
   // Calculate scroll progress for parallax effects
   const scrollProgress = Math.min(scrollY / 1000, 1)
+  const memoryBatches = groupMemoriesByDate(flatMemories)
 
   return (
     <div className="app">
@@ -356,6 +392,11 @@ function App() {
           }}
         />
       </div>
+
+      <FootstepTrail
+        maxScrollY={maxScrollYReached}
+        contentKey={flatMemories.length}
+      />
 
       {/* Content */}
       <div className="content">
@@ -430,7 +471,7 @@ function App() {
           </div>
         </header>
 
-        <Gallery memories={memories} onImageClick={openLightbox} />
+        <Gallery memoryBatches={memoryBatches} onImageClick={openLightbox} />
 
         {/* Footer note */}
         <footer className="footer-note">
@@ -440,7 +481,7 @@ function App() {
 
       <Lightbox
         isOpen={lightboxOpen}
-        memories={memories}
+        memories={flatMemories}
         currentIndex={currentIndex}
         onClose={closeLightbox}
         onPrevious={goToPrevious}

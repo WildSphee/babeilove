@@ -15,13 +15,28 @@ function isVideo(filename) {
   return videoExtensions.some(ext => filename.toLowerCase().endsWith(ext))
 }
 
-function GalleryCard({ memory, index, onImageClick }) {
+function GalleryMedia({ memory, onImageClick, stacked = false, stackIndex = 0, totalLayers = 1 }) {
   const mediaIsVideo = isVideo(memory.image || '')
 
   return (
-    <article className={`gallery-item ${index % 2 === 0 ? 'image-left' : 'image-right'}`}>
-      <div className="gallery-media" onClick={() => onImageClick(index)}>
-        {mediaIsVideo ? (
+    <button
+      type="button"
+      className={`gallery-media-button${stacked ? ' is-stacked' : ''}`}
+      onClick={() => onImageClick(memory.flatIndex)}
+      style={{
+        '--stack-index': stackIndex,
+        '--stack-depth': totalLayers - stackIndex - 1,
+        zIndex: totalLayers - stackIndex
+      }}
+      aria-label={`Open memory from ${formatDate(memory.date)}`}
+    >
+      <div className={`gallery-media-frame${stacked ? ' gallery-media-frame--stacked' : ''}`}>
+        {mediaIsVideo && stacked ? (
+          <div className="gallery-video-preview">
+            <span className="gallery-video-preview-icon" aria-hidden="true">▶</span>
+            <span className="gallery-video-preview-text">Video memory</span>
+          </div>
+        ) : mediaIsVideo ? (
           <video
             src={memory.mediaPath}
             autoPlay
@@ -37,24 +52,72 @@ function GalleryCard({ memory, index, onImageClick }) {
           />
         )}
       </div>
-      <div className="gallery-content">
-        <time className="gallery-date">{formatDate(memory.date)}</time>
-        {memory.caption && (
-          <p className="gallery-caption">{memory.caption}</p>
+    </button>
+  )
+}
+
+function GalleryCard({ batch, onImageClick }) {
+  const isMultiMemory = batch.items.length > 1
+  const visibleItems = isMultiMemory ? batch.items.slice(0, 4) : batch.items
+  const coverItem = batch.coverItem || batch.items[0]
+
+  return (
+    <article className={`gallery-item ${batch.layoutVariant} ${isMultiMemory ? 'gallery-item--batched' : ''}`}>
+      <div className={`gallery-media ${isMultiMemory ? 'gallery-media--stacked' : ''}`}>
+        {isMultiMemory ? (
+          <div
+            className="gallery-media-stack"
+            role="group"
+            aria-label={`${batch.items.length} memories from ${formatDate(batch.date)}`}
+          >
+            {visibleItems.map((item, stackIndex) => (
+              <GalleryMedia
+                key={`${item.image}-${item.flatIndex}`}
+                memory={item}
+                onImageClick={onImageClick}
+                stacked
+                stackIndex={stackIndex}
+                totalLayers={visibleItems.length}
+              />
+            ))}
+            {batch.items.length > visibleItems.length && (
+              <div className="gallery-stack-count">
+                +{batch.items.length - visibleItems.length}
+              </div>
+            )}
+          </div>
+        ) : (
+          <GalleryMedia
+            memory={coverItem}
+            onImageClick={onImageClick}
+          />
         )}
+      </div>
+      <div className="gallery-content">
+        <time className="gallery-date">{formatDate(batch.date)}</time>
+        {isMultiMemory ? (
+          <ul className="gallery-caption-list">
+            {batch.items.map((memory) => (
+              <li key={`${memory.image}-${memory.flatIndex}`} className="gallery-caption-list-item">
+                {memory.caption || 'Memory'}
+              </li>
+            ))}
+          </ul>
+        ) : coverItem?.caption ? (
+          <p className="gallery-caption">{coverItem.caption}</p>
+        ) : null}
       </div>
     </article>
   )
 }
 
-function Gallery({ memories, onImageClick }) {
+function Gallery({ memoryBatches, onImageClick }) {
   return (
     <main className="gallery">
-      {memories.map((memory, index) => (
+      {memoryBatches.map((batch, index) => (
         <GalleryCard
-          key={`${memory.image}-${index}`}
-          memory={memory}
-          index={index}
+          key={`${batch.date}-${index}`}
+          batch={batch}
           onImageClick={onImageClick}
         />
       ))}
