@@ -85,14 +85,14 @@ export default {
       "description": "Visiting to Raziq’s place. THE RENDANG SEDAP LA SIALLLLLLL"
     },
     {
-      "image": "memory-20260411-021252-984684.jpg",
-      "date": "2026-04-03",
-      "description": "BB GOT A BEARD FROM KOPI AT SAFE HEAVEN 🧔‍♀"
-    },
-    {
       "image": "memory-20260402-173834-829483.jpg",
       "date": "2026-04-03",
       "description": "DRINKSSS NIGHT"
+    },
+    {
+      "image": "memory-20260411-021252-984684.jpg",
+      "date": "2026-04-03",
+      "description": "BB GOT A BEARD FROM KOPI AT SAFE HEAVEN 🧔‍♀"
     },
     {
       "image": "memory-20260402-112512-758355.jpg",
