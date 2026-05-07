@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState } from 'react'
 import './Gallery.css'
 
 function formatDate(dateStr) {
@@ -54,8 +54,29 @@ function GalleryMedia({ memory, onImageClick, stacked = false, zIndex }) {
 
 function GalleryCard({ batch, onImageClick }) {
   const isMultiMemory = batch.items.length > 1
-  const visibleItems = isMultiMemory ? batch.items.slice(0, 4) : batch.items
+  const [activeIndex, setActiveIndex] = useState(0)
+  const rotatedItems = isMultiMemory
+    ? [
+        batch.items[activeIndex],
+        ...batch.items.slice(activeIndex + 1),
+        ...batch.items.slice(0, activeIndex)
+      ]
+    : batch.items
+  const visibleItems = isMultiMemory ? rotatedItems.slice(0, 4) : batch.items
   const coverItem = batch.coverItem || batch.items[0]
+  const activeMemory = isMultiMemory ? batch.items[activeIndex] : coverItem
+
+  const showPreviousMemory = () => {
+    setActiveIndex((currentIndex) => (
+      currentIndex === 0 ? batch.items.length - 1 : currentIndex - 1
+    ))
+  }
+
+  const showNextMemory = () => {
+    setActiveIndex((currentIndex) => (
+      currentIndex === batch.items.length - 1 ? 0 : currentIndex + 1
+    ))
+  }
 
   return (
     <article className={`gallery-item ${batch.layoutVariant} ${isMultiMemory ? 'gallery-item--batched' : ''}`}>
@@ -89,17 +110,34 @@ function GalleryCard({ batch, onImageClick }) {
         )}
       </div>
       <div className="gallery-content">
-        <time className="gallery-date">{formatDate(batch.date)}</time>
-        {isMultiMemory ? (
-          <ul className="gallery-caption-list">
-            {batch.items.map((memory) => (
-              <li key={`${memory.image}-${memory.flatIndex}`} className="gallery-caption-list-item">
-                {memory.caption || 'Memory'}
-              </li>
-            ))}
-          </ul>
-        ) : coverItem?.caption ? (
-          <p className="gallery-caption">{coverItem.caption}</p>
+        <div className="gallery-meta-row">
+          <time className="gallery-date">{formatDate(batch.date)}</time>
+          {isMultiMemory && (
+            <div className="gallery-batch-nav" aria-label={`Browse ${batch.items.length} memories from ${formatDate(batch.date)}`}>
+              <button
+                type="button"
+                className="gallery-batch-arrow"
+                onClick={showPreviousMemory}
+                aria-label="Show previous memory from this date"
+              >
+                &lsaquo;
+              </button>
+              <span className="gallery-batch-count">
+                {activeIndex + 1}/{batch.items.length}
+              </span>
+              <button
+                type="button"
+                className="gallery-batch-arrow"
+                onClick={showNextMemory}
+                aria-label="Show next memory from this date"
+              >
+                &rsaquo;
+              </button>
+            </div>
+          )}
+        </div>
+        {activeMemory?.caption ? (
+          <p className="gallery-caption">{activeMemory.caption}</p>
         ) : null}
       </div>
     </article>

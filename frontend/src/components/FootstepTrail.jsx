@@ -117,7 +117,7 @@ function FootstepTrail({ maxScrollY, contentKey }) {
       {steps.map((step) => (
         <span
           key={step.id}
-          className={`footstep ${step.isLeft ? 'footstep--left' : 'footstep--right'}`}
+          className={`footstep ${step.isLeft ? 'footstep--right' : 'footstep--left'}`}
           style={{
             '--footstep-left': `${step.left}px`,
             '--footstep-top': `${step.top}px`,
