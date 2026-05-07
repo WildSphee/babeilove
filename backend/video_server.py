@@ -12,14 +12,9 @@ Nginx should proxy /api/ to this server:
     }
 """
 
-import threading
-
-from flask import Flask, jsonify, send_file
-
-from backend.export_video import export_video
+from flask import Flask, jsonify
 
 app = Flask(__name__)
-_lock = threading.Lock()
 
 
 @app.after_request
@@ -30,24 +25,7 @@ def _cors(response):
 
 @app.route("/api/export-video")
 def api_export_video():
-    """Generate the memories video and return it as a download."""
-    if not _lock.acquire(blocking=False):
-        return jsonify({"error": "Video generation already in progress — try again shortly."}), 429
-
-    try:
-        output_path = export_video()
-        if not output_path.exists() or output_path.stat().st_size < 1024:
-            raise RuntimeError("Generated video file was missing or incomplete.")
-        return send_file(
-            str(output_path),
-            mimetype="video/mp4",
-            as_attachment=True,
-            download_name="our-memories.mp4",
-        )
-    except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
-    finally:
-        _lock.release()
+    return jsonify({"error": "Video export is temporarily disabled."}), 503
 
 
 @app.route("/api/health")
