@@ -30,7 +30,7 @@
 }
 
 .footstep--right .footstep-svg {
-  transform: scaleX(-1);
+  transform: scaleY(-1);
 }
 
 @keyframes footstep-appear {

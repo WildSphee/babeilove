@@ -35,7 +35,7 @@ function measureDocumentHeight() {
 function createFootsteps(count, viewportWidth, viewportHeight, documentHeight) {
   const stepSize = clamp(viewportWidth * 0.12, 56, 96)
   const stepSpacing = clamp(viewportWidth * 0.25, 118, 168)
-  const pathRadius = clamp(viewportWidth * 0.13, 44, 138)
+  const pathRadius = clamp(viewportWidth * 0.18, 64, 190)
   const pathOffset = stepSize * 0.44
   const startY = viewportHeight * 0.6
   const endY = documentHeight - stepSize * 1.8
