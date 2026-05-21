@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Gallery from './components/Gallery'
 import Lightbox from './components/Lightbox'
 import FootstepTrail from './components/FootstepTrail'
+import StockDashboard from './components/StockDashboard'
 import './App.css'
 
 const baseUrl = import.meta.env.BASE_URL || '/'
@@ -134,6 +135,7 @@ function groupMemoriesByDate(memories) {
 }
 
 function App() {
+  const [activeView, setActiveView] = useState('gallery')
   const [flatMemories, setFlatMemories] = useState([])
   const [config, setConfig] = useState(null)
   const [cursorThemes, setCursorThemes] = useState(fallbackCursorSettings.themes)
@@ -404,13 +406,33 @@ function App() {
               </div>
             </div>
           </div>
-          <div className="scroll-hint">
-            <span>Scroll to explore</span>
-            <div className="scroll-arrow" />
-          </div>
+          <nav className="view-toggle">
+            <button
+              type="button"
+              className={`view-btn${activeView === 'gallery' ? ' active' : ''}`}
+              onClick={() => setActiveView('gallery')}
+            >
+              Gallery
+            </button>
+            <button
+              type="button"
+              className={`view-btn${activeView === 'stocks' ? ' active' : ''}`}
+              onClick={() => setActiveView('stocks')}
+            >
+              Stocks
+            </button>
+          </nav>
+
+          {activeView === 'gallery' && (
+            <div className="scroll-hint">
+              <span>Scroll to explore</span>
+              <div className="scroll-arrow" />
+            </div>
+          )}
         </header>
 
-        <Gallery memoryBatches={memoryBatches} onImageClick={openLightbox} />
+        {activeView === 'gallery' && <Gallery memoryBatches={memoryBatches} onImageClick={openLightbox} />}
+        {activeView === 'stocks' && <StockDashboard />}
 
         {/* Footer note */}
         <footer className="footer-note">

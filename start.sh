@@ -16,7 +16,7 @@ cleanup() {
 
 trap cleanup SIGTSTP SIGINT SIGTERM
 
-echo "Starting memory video export server on http://127.0.0.1:5050"
+echo "Starting API server (video + stocks) on http://127.0.0.1:5050"
 (
   cd "$ROOT_DIR"
   if [ -x "$ROOT_DIR/venv/bin/python" ]; then
@@ -46,8 +46,8 @@ BOT_PID=$!
 
 echo ""
 echo "Both services running. Press Ctrl+Z (or Ctrl+C) to stop all."
-echo "  Video server PID: $VIDEO_PID"
-echo "  Bot PID:          $BOT_PID"
+echo "  API server PID: $VIDEO_PID  (stocks live at /api/stocks)"
+echo "  Bot PID:        $BOT_PID"
 echo ""
 
 wait "$VIDEO_PID" "$BOT_PID"
