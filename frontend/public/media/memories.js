@@ -10,6 +10,21 @@ export default {
   },
   "memories": [
     {
+      "image": "memory-20260610-080117-272880.jpg",
+      "date": "2026-06-07",
+      "description": "Cable carrr goes vroom vroom 🗣"
+    },
+    {
+      "image": "memory-20260610-080246-731910.jpg",
+      "date": "2026-06-07",
+      "description": "Big muaks~ we watched scary movie 6 but kinda ass but its ok cuz audrey was w me :)"
+    },
+    {
+      "image": "memory-20260610-080318-635316.jpg",
+      "date": "2026-06-07",
+      "description": "Also alchemist is hella good"
+    },
+    {
       "image": "memory-20260604-111358-558379.jpg",
       "date": "2026-05-31",
       "description": "Babe being qt3.14 :)"
