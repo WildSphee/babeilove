@@ -10,14 +10,69 @@ export default {
   },
   "memories": [
     {
+      "image": "memory-20260604-111358-558379.jpg",
+      "date": "2026-05-31",
+      "description": "Babe being qt3.14 :)"
+    },
+    {
+      "image": "memory-20260525-053551-869028.jpg",
+      "date": "2026-05-24",
+      "description": "HK CHIIKAWA EXCLUSIVE"
+    },
+    {
+      "image": "memory-20260525-055056-977131.jpg",
+      "date": "2026-05-21",
+      "description": "Pretty Regina ^^"
+    },
+    {
+      "image": "memory-20260525-054242-960612.jpg",
+      "date": "2026-05-21",
+      "description": "Pretty Regina ^^"
+    },
+    {
+      "image": "memory-20260525-070811-982335.jpg",
+      "date": "2026-05-19",
+      "description": "🍫"
+    },
+    {
+      "image": "memory-20260525-070636-282922.mov",
+      "date": "2026-05-19",
+      "description": "The candyman can"
+    },
+    {
+      "image": "memory-20260525-071122-669041.jpg",
+      "date": "2026-05-17",
+      "description": "I LOVE 🦀 🍝"
+    },
+    {
+      "image": "memory-20260525-071051-866489.jpg",
+      "date": "2026-05-17",
+      "description": "Date night at Sospiri!!!!"
+    },
+    {
+      "image": "memory-20260525-071002-668562.jpg",
+      "date": "2026-05-17",
+      "description": "🦀🍝"
+    },
+    {
+      "image": "memory-20260525-071225-953158.jpg",
+      "date": "2026-05-14",
+      "description": "Do the dab"
+    },
+    {
+      "image": "memory-20260525-071539-479788.mov",
+      "date": "2026-05-06",
+      "description": "BRUH WHAT"
+    },
+    {
+      "image": "memory-20260525-071506-200674.mov",
+      "date": "2026-05-06",
+      "description": "HAHAHAHAHAHAHAHAHAHHA"
+    },
+    {
       "image": "memory-20260506-154522-858847.jpg",
       "date": "2026-05-06",
       "description": "BABE MADE ME A PRETTY EYEBROW MAN >:))"
-    },
-    {
-      "image": "memory-20260502-061433-749176.jpg",
-      "date": "2026-05-01",
-      "description": "Nusa Laut! Wa sedap oxtail sup buntot broooooooooo"
     },
     {
       "image": "memory-20260506-112752-338976.jpg",
@@ -35,19 +90,24 @@ export default {
       "description": "School shooter"
     },
     {
+      "image": "memory-20260502-061433-749176.jpg",
+      "date": "2026-05-01",
+      "description": "Nusa Laut! Wa sedap oxtail sup buntot broooooooooo"
+    },
+    {
       "image": "memory-20260428-070757-813890.jpg",
       "date": "2026-04-28",
       "description": "Skibidi toilet yakun"
     },
     {
-      "image": "memory-20260427-131148-941770.jpg",
-      "date": "2026-04-26",
-      "description": "Dinner @Pete’s Place and Reagan saw Pete"
-    },
-    {
       "image": "memory-20260427-131252-933292.jpg",
       "date": "2026-04-26",
       "description": "SING K BROOOOOOO FIRE"
+    },
+    {
+      "image": "memory-20260427-131148-941770.jpg",
+      "date": "2026-04-26",
+      "description": "Dinner @Pete’s Place and Reagan saw Pete"
     },
     {
       "image": "memory-20260425-063246-540635.jpg",
@@ -65,11 +125,6 @@ export default {
       "description": "wat"
     },
     {
-      "image": "memory-20260414-041629-538521.jpg",
-      "date": "2026-04-12",
-      "description": "Lovely dinner at Fico, celebrating our 4th monthsary and Reagan’s achievement! He’s amazing!"
-    },
-    {
       "image": "memory-20260501-100430-239842.jpg",
       "date": "2026-04-12",
       "description": "WAS GONNA BE MORPHEUS"
@@ -80,19 +135,24 @@ export default {
       "description": "BRO"
     },
     {
+      "image": "memory-20260414-041629-538521.jpg",
+      "date": "2026-04-12",
+      "description": "Lovely dinner at Fico, celebrating our 4th monthsary and Reagan’s achievement! He’s amazing!"
+    },
+    {
       "image": "memory-20260414-042026-193530.jpg",
       "date": "2026-04-04",
       "description": "Visiting to Raziq’s place. THE RENDANG SEDAP LA SIALLLLLLL"
     },
     {
-      "image": "memory-20260402-173834-829483.jpg",
-      "date": "2026-04-03",
-      "description": "DRINKSSS NIGHT"
-    },
-    {
       "image": "memory-20260411-021252-984684.jpg",
       "date": "2026-04-03",
       "description": "BB GOT A BEARD FROM KOPI AT SAFE HEAVEN 🧔‍♀"
+    },
+    {
+      "image": "memory-20260402-173834-829483.jpg",
+      "date": "2026-04-03",
+      "description": "DRINKSSS NIGHT"
     },
     {
       "image": "memory-20260402-112512-758355.jpg",
@@ -240,14 +300,14 @@ export default {
       "description": "Taking picture with creepy santa over at Great Worlds"
     },
     {
-      "image": "-6195065415235472732_119.jpg",
-      "date": "2025-12-14",
-      "description": "I won't trade anything for you babe <3"
-    },
-    {
       "image": "-6195065415235472735_119.jpg",
       "date": "2025-12-14",
       "description": "This one holds a special place in my heart~"
+    },
+    {
+      "image": "-6195065415235472732_119.jpg",
+      "date": "2025-12-14",
+      "description": "I won't trade anything for you babe <3"
     },
     {
       "image": "20251210_190244.jpg",
