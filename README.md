@@ -34,7 +34,7 @@ Project files and scripts:
 - `backend/media_dates.py` - photo date metadata and Telegram date validation
 - `pyproject.toml` - Python project and dependency definition
 - `poetry.lock` - locked Python dependency versions
-- `start_bot.sh` - root runner for the Telegram bot
+- `start.sh` - root runner for the Telegram bot
 - `start_dev_fe.sh` - frontend dev runner
 - `build.sh` - frontend production build
 - `tests/test_memory_features.py` - offline bot and storage tests
@@ -68,10 +68,10 @@ sorry, you don't have access to this Telegram chatbot
 1. Install Python 3.12 or newer with its matching `venv` package, then prepare the bot environment:
 
 ```bash
-./start_bot.sh --setup
+./start.sh --setup
 ```
 
-This creates `./venv` and installs the dependencies from `pyproject.toml`. If Poetry is already available, it uses `poetry install --no-root` instead. Setup does not start the bot.
+This installs dependencies from `pyproject.toml` into `backend/venv`, reusing a root `venv` if no backend environment exists. With neither environment present, it uses Poetry when available or creates `backend/venv`. Setup does not start the bot.
 
 2. Add the bot token to the root `.env`:
 
@@ -86,10 +86,10 @@ By default, every successful memory create, edit, reorder, or delete triggers `.
 3. Start the bot:
 
 ```bash
-./start_bot.sh
+./start.sh
 ```
 
-`start_bot.sh` uses `./venv/bin/python` or Poetry to launch the bot. If neither exists, it creates the environment and installs dependencies automatically before launching.
+`start.sh` prefers `backend/venv/bin/python`, then `venv/bin/python`, then Poetry. If none exists, it creates `backend/venv` and installs dependencies automatically before launching.
 
 4. Start the frontend dev server separately when needed:
 

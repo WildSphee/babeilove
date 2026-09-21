@@ -10,7 +10,12 @@ if [ "$#" -gt 1 ] || { [ "$#" -eq 1 ] && [ "$1" != '--setup' ]; }; then
   exit 1
 fi
 
-BOT_PYTHON="$ROOT_DIR/venv/bin/python"
+BOT_VENV="$ROOT_DIR/backend/venv"
+BOT_PYTHON="$BOT_VENV/bin/python"
+
+if [ ! -x "$BOT_PYTHON" ] && [ -x "$ROOT_DIR/venv/bin/python" ]; then
+  BOT_PYTHON="$ROOT_DIR/venv/bin/python"
+fi
 
 if [ ! -x "$BOT_PYTHON" ]; then
   if command -v poetry >/dev/null 2>&1; then
@@ -25,9 +30,9 @@ if [ ! -x "$BOT_PYTHON" ]; then
     exit 1
   fi
 
-  echo "Creating the bot's Python environment in ./venv..."
-  if ! python3 -m venv "$ROOT_DIR/venv"; then
-    echo "Could not create ./venv. Install the venv package matching your Python (e.g. python3-venv), then retry."
+  echo "Creating the bot's Python environment in ./backend/venv..."
+  if ! python3 -m venv "$BOT_VENV"; then
+    echo "Could not create ./backend/venv. Install the venv package matching your Python (e.g. python3-venv), then retry."
     exit 1
   fi
 fi
