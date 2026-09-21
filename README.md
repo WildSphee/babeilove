@@ -27,14 +27,17 @@ The bot uses polling and writes directly to:
 - `frontend/public/media/memories.js`
 - `frontend/public/media/*`
 
-Backend files:
+Project files and scripts:
 
 - `backend/memory_bot.py` - Telegram bot entrypoint
 - `backend/storage.py` - file-backed memory storage and media management
+- `backend/media_dates.py` - photo date metadata and Telegram date validation
 - `pyproject.toml` - Python project and dependency definition
 - `poetry.lock` - locked Python dependency versions
 - `start_bot.sh` - root runner for the Telegram bot
 - `start_dev_fe.sh` - frontend dev runner
+- `build.sh` - frontend production build
+- `tests/test_memory_features.py` - offline bot and storage tests
 
 Supported bot flows:
 
@@ -62,11 +65,13 @@ sorry, you don't have access to this Telegram chatbot
 
 ### Backend Setup
 
-1. Install Python dependencies:
+1. Install Python 3.12 or newer with its matching `venv` package, then prepare the bot environment:
 
 ```bash
-poetry install
+./start_bot.sh --setup
 ```
+
+This creates `./venv` and installs the dependencies from `pyproject.toml`. If Poetry is already available, it uses `poetry install --no-root` instead. Setup does not start the bot.
 
 2. Add the bot token to the root `.env`:
 
@@ -76,7 +81,7 @@ TELEGRAM_ALLOWED_USERNAMES=handle1,handle2
 POST_UPDATE_COMMAND=./build.sh
 ```
 
-By default, every successful memory create, edit, reorder, or delete triggers `./build.sh` so the frontend output is rebuilt for nginx. If you need a different deploy flow, override `POST_UPDATE_COMMAND` with another script such as `./update_and_build.sh`.
+By default, every successful memory create, edit, reorder, or delete triggers `./build.sh` so the frontend output is rebuilt for nginx. Set `POST_UPDATE_COMMAND` to a custom command if your deployment needs a different build step.
 
 3. Start the bot:
 
@@ -84,31 +89,13 @@ By default, every successful memory create, edit, reorder, or delete triggers `.
 ./start_bot.sh
 ```
 
-`start_bot.sh` launches the Telegram bot through `poetry run python -m backend.memory_bot`.
+`start_bot.sh` uses `./venv/bin/python` or Poetry to launch the bot. If neither exists, it creates the environment and installs dependencies automatically before launching.
 
 4. Start the frontend dev server separately when needed:
 
 ```bash
 ./start_dev_fe.sh
 ```
-
-### Video Export Routing
-
-The "Export as Video" button calls `/api/export-video`.
-
-- In local Vite dev, `frontend/vite.config.js` already proxies `/api` to `http://127.0.0.1:5050`
-- In production, your web server must proxy `/api/` to the Flask video server
-
-Example nginx location:
-
-```nginx
-location /api/ {
-    proxy_pass http://127.0.0.1:5050/api/;
-    proxy_read_timeout 600;
-}
-```
-
-If you do not want to use `/api` on the same origin, set `VITE_API_BASE_URL` for the frontend build so the button calls a different backend base URL.
 
 ### Bot Usage
 
@@ -158,10 +145,11 @@ export default {
 - **Loverine** - Footer note
 
 ## Build for Production
-this script automatically git commit / git push and npm run for nginx
-perfect for republishing changes after updating the memory
+
+Install frontend dependencies once with `npm ci --prefix frontend`, then build:
+
 ```bash
-sh update_and_build.sh
+./build.sh
 ```
 
-Output will be in `frontend/dist/`.
+Serve the static output in `frontend/dist/` with nginx or another static web server. Photo and video playback uses files in `media/`; no HTTP backend is required by the website.
