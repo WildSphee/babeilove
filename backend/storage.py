@@ -142,6 +142,24 @@ class MemoryStore:
             self._delete_file_if_orphaned(removed['image'], memories)
             return MemoryRecord.from_dict(removed)
 
+    def move_to_first_in_day(self, memory_id: str) -> MemoryRecord:
+        with self._lock:
+            data = self._read_data()
+            memories = data['memories']
+            index = self._find_memory_index(memories, memory_id)
+            if index is None:
+                raise KeyError('Memory no longer exists. Refresh with /list and try again.')
+            memory = memories[index]
+            day = self.normalize_date(memory['date'])
+            first_index = next(
+                i for i, item in enumerate(memories)
+                if self.normalize_date(item['date']) == day
+            )
+            if index != first_index:
+                memories.insert(first_index, memories.pop(index))
+                self._write_data(data)
+            return MemoryRecord.from_dict(memory)
+
     def save_media_file(self, source_path: Path, extension: str, prefix: str = 'memory') -> str:
         normalized_ext = extension.lower()
         if normalized_ext not in ALLOWED_EXTENSIONS:
@@ -213,7 +231,8 @@ class MemoryStore:
 
     @staticmethod
     def _sort_memories(memories: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return sorted(memories, key=lambda item: (MemoryStore.normalize_date(item['date']), item.get('image', '')), reverse=True)
+        # Python's stable sort preserves the chosen order within each day.
+        return sorted(memories, key=lambda item: MemoryStore.normalize_date(item['date']), reverse=True)
 
     def _delete_file_if_orphaned(self, filename: str, memories: list[dict[str, Any]]) -> None:
         if any(memory.get('image') == filename for memory in memories):

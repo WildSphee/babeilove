@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
+from uuid import uuid4
 
 from dotenv import load_dotenv
 from telegram import (
@@ -29,8 +30,10 @@ from telegram.ext import (
 )
 
 try:
+    from .media_dates import date_warning, extract_photo_date, parse_input_date
     from .storage import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS, MemoryRecord, MemoryStore
 except ImportError:
+    from media_dates import date_warning, extract_photo_date, parse_input_date
     from storage import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS, MemoryRecord, MemoryStore
 
 logging.basicConfig(
@@ -54,6 +57,7 @@ ACTION_NONE = 'none'
 ACTION_NEW_DATE = 'new_date'
 ACTION_NEW_DESCRIPTION = 'new_description'
 ACTION_NEW_MEDIA = 'new_media'
+ACTION_CONFIRM_DATE = 'confirm_date'
 ACTION_EDIT_CAPTION = 'edit_caption'
 ACTION_EDIT_DATE = 'edit_date'
 ACTION_EDIT_MEDIA = 'edit_media'
@@ -116,10 +120,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     clear_pending_action(context)
     await reply_with_command_menu(
         update.effective_message,
-        # 'Use the buttons below or these commands:\n'
-        # '/list - browse memories\n'
-        # '/new - add a new memory\n'
-        # '/cancel - clear the current pending action'
+        'Choose List Memories or New Memory. Use /cancel to clear a pending action.',
     )
 
 
@@ -142,9 +143,56 @@ async def list_memories(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 @require_authorized
 async def new_memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    context.user_data['action'] = ACTION_NEW_DATE
+    clear_pending_action(context)
+    context.user_data['action'] = ACTION_NEW_MEDIA
     context.user_data['new_memory'] = {}
-    await reply_with_command_menu(update.effective_message, 'Send the memory date in YYYY-MM-DD format.')
+    await reply_with_command_menu(
+        update.effective_message,
+        'Send the photo first (or a video). Send the original image as a file to help preserve its date metadata.',
+    )
+
+
+async def prompt_date_confirmation(message, context, value: str, action: str, warning: str | None = None) -> None:
+    token = uuid4().hex[:12]
+    context.user_data['date_prompt'] = {
+        'date': value, 'action': action, 'token': token, 'warning': bool(warning),
+    }
+    context.user_data['action'] = ACTION_CONFIRM_DATE if warning else action
+    text = (
+        f'{value} is {warning}. Are you sure you want to use this date?'
+        if warning else f'The photo metadata suggests {value}. Is this correct?'
+    )
+    await message.reply_text(
+        f'{text}\nTap below or type a different date in ddmmyy format.',
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton('Yes use this date', callback_data=f'date:{token}')],
+        ]),
+    )
+
+
+async def select_date(update, context, value: str, action: str, confirmed: bool = False) -> None:
+    context.user_data.pop('date_prompt', None)
+    warning = date_warning(value)
+    if warning and not confirmed:
+        await prompt_date_confirmation(update.effective_message, context, value, action, warning)
+        return
+    if action == ACTION_NEW_DATE:
+        context.user_data['new_memory']['date'] = value
+        context.user_data['action'] = ACTION_NEW_DESCRIPTION
+        await reply_with_command_menu(update.effective_message, 'Finally, send the description for this memory.')
+        return
+
+    pending_id = context.user_data.get('memory_id')
+    if not pending_id:
+        clear_pending_action(context)
+        await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
+        return
+    updated = store.update_date(pending_id, value)
+    list_page = find_list_page_for_memory(updated.id, fallback=int(context.user_data.get('browser_page', 0)))
+    clear_pending_action(context)
+    await reply_with_command_menu(update.effective_message, f'Date updated. This memory is now stored under {updated.date}.')
+    await refresh_or_send_memory_list(update.effective_message, context, list_page=list_page)
+    await maybe_run_post_update(update)
 
 
 @require_authorized
@@ -162,11 +210,10 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
 
     try:
-        if action == ACTION_NEW_DATE:
-            normalized = store.normalize_date(text)
-            context.user_data['new_memory'] = {'date': normalized}
-            context.user_data['action'] = ACTION_NEW_DESCRIPTION
-            await reply_with_command_menu(update.effective_message, 'Send the description for this memory.')
+        if action in {ACTION_NEW_DATE, ACTION_EDIT_DATE, ACTION_CONFIRM_DATE}:
+            normalized = parse_input_date(text)
+            date_action = context.user_data['date_prompt']['action'] if action == ACTION_CONFIRM_DATE else action
+            await select_date(update, context, normalized, date_action)
             return
 
         if action == ACTION_NEW_DESCRIPTION:
@@ -176,9 +223,16 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                     'Description cannot be empty. Send the description text.',
                 )
                 return
-            context.user_data.setdefault('new_memory', {})['description'] = text
-            context.user_data['action'] = ACTION_NEW_MEDIA
-            await reply_with_command_menu(update.effective_message, 'Now send the photo or video for this memory.')
+            payload = context.user_data['new_memory']
+            created = store.add_memory(image_filename=payload['image'], date=payload['date'], description=text)
+            # Detach the committed file before clearing the pending upload.
+            payload.pop('image')
+            clear_pending_action(context)
+            await reply_with_command_menu(update.effective_message, f'Created new memory for {created.date}.')
+            await refresh_or_send_memory_list(
+                update.effective_message, context, list_page=find_list_page_for_memory(created.id),
+            )
+            await maybe_run_post_update(update)
             return
 
         if action == ACTION_EDIT_CAPTION:
@@ -198,24 +252,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             await maybe_run_post_update(update)
             return
 
-        if action == ACTION_EDIT_DATE:
-            pending_id = context.user_data.get('memory_id')
-            if not pending_id:
-                clear_pending_action(context)
-                await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
-                return
-            updated = store.update_date(pending_id, text)
-            list_page = find_list_page_for_memory(
-                updated.id,
-                fallback=int(context.user_data.get('browser_page', 0)),
-            )
-            clear_pending_action(context)
-            await reply_with_command_menu(
-                update.effective_message,
-                f'Date updated. This memory is now stored under {updated.date}.'
-            )
-            await refresh_or_send_memory_list(update.effective_message, context, list_page=list_page)
-            await maybe_run_post_update(update)
+        if action == ACTION_NEW_MEDIA:
+            await reply_with_command_menu(update.effective_message, 'Send the photo or video first, then we will choose its date.')
             return
 
         await reply_with_command_menu(
@@ -245,31 +283,28 @@ async def handle_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     try:
         saved_filename = await download_media_from_message(update, context)
         if action == ACTION_NEW_MEDIA:
-            payload = context.user_data.get('new_memory', {})
-            created = store.add_memory(
-                image_filename=saved_filename,
-                date=payload['date'],
-                description=payload['description'],
-            )
-            clear_pending_action(context)
-            await reply_with_command_menu(
-                update.effective_message,
-                f'Created new memory for {created.date} with file {created.image}.'
-            )
-            await refresh_or_send_memory_list(
-                update.effective_message,
-                context,
-                list_page=find_list_page_for_memory(created.id, fallback=0),
-            )
-            await maybe_run_post_update(update)
+            context.user_data['new_memory'] = {'image': saved_filename}
+            context.user_data['action'] = ACTION_NEW_DATE
+            suggested_date = extract_photo_date(store.media_dir / saved_filename)
+            # The pending flow now owns this file, including if sending a prompt fails.
+            saved_filename = None
+            if suggested_date:
+                await prompt_date_confirmation(update.effective_message, context, suggested_date, ACTION_NEW_DATE)
+            else:
+                await reply_with_command_menu(
+                    update.effective_message,
+                    'No readable photo date metadata found. Send the date in ddmmyy format, e.g. 210926 for 21 September 2026.',
+                )
             return
 
         pending_id = context.user_data.get('memory_id')
         if not pending_id:
+            cleanup_saved_file(saved_filename)
             clear_pending_action(context)
             await reply_with_command_menu(update.effective_message, 'The edit session expired. Refresh with /list.')
             return
         updated = store.replace_media(pending_id, saved_filename)
+        saved_filename = None  # The replacement has been committed.
         list_page = find_list_page_for_memory(
             updated.id,
             fallback=int(context.user_data.get('browser_page', 0)),
@@ -299,6 +334,21 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     await query.answer()
     data = query.data or ''
     if data == NOOP_CALLBACK:
+        return
+
+    if data.startswith('date:'):
+        pending = context.user_data.get('date_prompt')
+        if (
+            not pending or data != f"date:{pending['token']}"
+            or context.user_data.get('action') not in {ACTION_NEW_DATE, ACTION_CONFIRM_DATE}
+        ):
+            await query.message.reply_text('This date button has expired. Follow the latest prompt or use /new.')
+            return
+        try:
+            await select_date(update, context, pending['date'], pending['action'], confirmed=pending['warning'])
+        except (ValueError, KeyError) as exc:
+            clear_pending_action(context)
+            await reply_with_command_menu(query.message, str(exc))
         return
 
     try:
@@ -335,6 +385,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return
 
     if action == 'ec':
+        clear_pending_action(context)
         context.user_data['action'] = ACTION_EDIT_CAPTION
         context.user_data['memory_id'] = memory_id
         context.user_data['browser_page'] = value
@@ -342,17 +393,33 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return
 
     if action == 'ed':
+        clear_pending_action(context)
         context.user_data['action'] = ACTION_EDIT_DATE
         context.user_data['memory_id'] = memory_id
         context.user_data['browser_page'] = value
-        await query.message.reply_text('Send the new date in YYYY-MM-DD format.')
+        await query.message.reply_text('Send the new date in ddmmyy format, e.g. 210926 for 21 September 2026.')
         return
 
     if action == 'em':
+        clear_pending_action(context)
         context.user_data['action'] = ACTION_EDIT_MEDIA
         context.user_data['memory_id'] = memory_id
         context.user_data['browser_page'] = value
         await query.message.reply_text('Send the replacement photo or video.')
+        return
+
+    if action == 'first':
+        clear_pending_action(context)
+        try:
+            updated = store.move_to_first_in_day(memory_id)
+        except KeyError as exc:
+            await query.message.reply_text(str(exc))
+            return
+        await render_memory_detail_by_id(
+            query.message, context, memory_id=updated.id,
+            notice=f'Set as the first picture for {updated.date}.',
+        )
+        await maybe_run_post_update(update)
         return
 
     if action == 'del':
@@ -499,6 +566,7 @@ def build_memory_detail_keyboard(
                 InlineKeyboardButton('Edit date', callback_data=f'ed:{list_page}:{memory.id}'),
             ],
             [InlineKeyboardButton('Replace media', callback_data=f'em:{list_page}:{memory.id}')],
+            [InlineKeyboardButton('Set as first picture for this day', callback_data=f'first:{list_page}:{memory.id}')],
             [InlineKeyboardButton('Delete', callback_data=f'del:{list_page}:{memory.id}')],
             [InlineKeyboardButton('Back to list', callback_data=f'lp:{list_page}')],
         ]
@@ -815,13 +883,17 @@ def run_post_update_command() -> dict[str, Any]:
 
 
 def clear_pending_action(context: ContextTypes.DEFAULT_TYPE) -> None:
+    pending = context.user_data.pop('new_memory', {})
+    cleanup_saved_file(pending.get('image'))
     context.user_data.pop('action', None)
     context.user_data.pop('memory_id', None)
-    context.user_data.pop('new_memory', None)
+    context.user_data.pop('date_prompt', None)
 
 
 def cleanup_saved_file(filename: str | None) -> None:
     if not filename:
+        return
+    if any(memory.image == filename for memory in store.list_memories()):
         return
     target_path = store.media_dir / filename
     if target_path.exists():

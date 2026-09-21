@@ -40,11 +40,16 @@ Supported bot flows:
 
 - `/list` opens a paginated overview list in one Telegram message
 - Selecting a memory from the list opens its image or video with inline edit controls
-- `/new` creates a new memory by asking for the date, description, and media upload
+- `/new` asks for a photo or video first, then its date, and finally a description
+- When a photo has readable EXIF date metadata, the bot suggests it with a `Yes use this date` inline button; you can type a different date instead
+- Enter dates as six digits in `ddmmyy` format (for example, `210926` means 21 September 2026; two-digit years mean 2000–2099). Stored dates remain `YYYY-MM-DD`
+- Future dates and dates more than one calendar year before the server's current date require an extra confirmation, including when editing dates
+- Photos without readable date metadata and videos prompt for a date manually. Sending the original photo as a file helps preserve its metadata
 - Edit actions support caption, date, and media replacement
+- Open a memory and tap `Set as first picture for this day` to move it ahead of the other memories on that date in `memories.js`. The website uses this order for its day cover and browsing order; later additions and edits preserve the order within each day
 - Delete removes the memory entry and deletes the local media file when no other entry uses it
 - The bot shows a persistent reply keyboard with `🗂 List Memories` and `➕ New Memory`
-- `/cancel` clears the current pending edit or creation flow
+- `/cancel` clears the current pending edit or creation flow and removes any uncommitted upload
 
 Access is restricted to Telegram usernames in `TELEGRAM_ALLOWED_USERNAMES`
 
@@ -71,7 +76,7 @@ TELEGRAM_ALLOWED_USERNAMES=handle1,handle2
 POST_UPDATE_COMMAND=./build.sh
 ```
 
-By default, every successful memory create, edit, or delete triggers `./build.sh` so the frontend output is rebuilt for nginx. If you need a different deploy flow, override `POST_UPDATE_COMMAND` with another script such as `./update_and_build.sh`.
+By default, every successful memory create, edit, reorder, or delete triggers `./build.sh` so the frontend output is rebuilt for nginx. If you need a different deploy flow, override `POST_UPDATE_COMMAND` with another script such as `./update_and_build.sh`.
 
 3. Start the bot:
 
@@ -109,8 +114,16 @@ If you do not want to use `/api` on the same origin, set `VITE_API_BASE_URL` for
 
 1. Send `/list` or tap `🗂 List Memories` to open the paginated memory overview
 2. Tap a memory row to open its image or video inside the bot
-3. Use the inline buttons to edit caption, date, replace media, or delete the current memory
+3. Use the inline buttons to edit caption, date, replace media, set the first picture for that day, or delete the current memory
 4. Send `/new` to create a new memory, then follow the prompts
+
+### Offline Tests
+
+```bash
+poetry run python -m unittest discover -s tests -v
+```
+
+The tests use temporary memory files and mocked Telegram messages and rebuild commands. They do not start polling, contact Telegram, rebuild the site, or modify real memories.
 
 ## Adding Memories
 
