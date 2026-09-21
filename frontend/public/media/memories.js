@@ -10,9 +10,254 @@ export default {
   },
   "memories": [
     {
-      "image": "memory-20260610-080117-272880.jpg",
+      "image": "memory-20260915-090105-812987.jpg",
+      "date": "2026-09-15",
+      "description": "Baby bought mooncakes for my family :) MX bro"
+    },
+    {
+      "image": "memory-20260915-090032-294997.jpg",
+      "date": "2026-09-15",
+      "description": "Boyfriend waiting area 🤔"
+    },
+    {
+      "image": "memory-20260915-085952-087321.jpg",
+      "date": "2026-09-15",
+      "description": "Byebye room 👋 :) it’s a wonderful place at Setia Sky 88"
+    },
+    {
+      "image": "memory-20260915-085032-077889.jpg",
+      "date": "2026-09-15",
+      "description": "Lovely coffee and brunch at… “Focacacowcow…(?)” -reagan"
+    },
+    {
+      "image": "memory-20260915-084910-541920.jpg",
+      "date": "2026-09-14",
+      "description": "Cooked our first Pasta together :) Tomato pasta with minced beef"
+    },
+    {
+      "image": "memory-20260915-084816-184410.jpg",
+      "date": "2026-09-14",
+      "description": "Chiikawa movie… Scary… unsettling… but Chan likes it…"
+    },
+    {
+      "image": "memory-20260915-084704-380600.jpg",
+      "date": "2026-09-14",
+      "description": "HIBI by Wizards is SO F GOOD?"
+    },
+    {
+      "image": "memory-20260915-084606-850841.jpg",
+      "date": "2026-09-13",
+      "description": "What a loving dinner to celebrate our anniversary at Coppola @JB. Great pizza and lovely ambiance"
+    },
+    {
+      "image": "memory-20260915-084437-877270.jpg",
+      "date": "2026-09-13",
+      "description": "BUBS GAVE ME ROSE"
+    },
+    {
+      "image": "memory-20260906-153634-839201.jpg",
+      "date": "2026-09-06",
+      "description": "來又如風~"
+    },
+    {
+      "image": "memory-20260906-153538-428466.jpg",
+      "date": "2026-09-06",
+      "description": "I SHOW BB THE USAGIS AND SHISA I GOT FOR HER SHE LOVES ITT"
+    },
+    {
+      "image": "memory-20260906-152413-093019.jpg",
+      "date": "2026-09-06",
+      "description": "HOYL SHIII WE DID IT OMGGGG"
+    },
+    {
+      "image": "memory-20260906-152335-387577.jpg",
+      "date": "2026-09-06",
+      "description": "We BEAT EM HARDDD"
+    },
+    {
+      "image": "memory-20260906-152257-559130.jpg",
+      "date": "2026-09-06",
+      "description": "\"I finally rest. And watch the sun rise on a grateful universe. The hardest choices require the strongest wills\" - thanos"
+    },
+    {
+      "image": "memory-20260906-084047-077007.jpg",
+      "date": "2026-09-06",
+      "description": "We go cafe and babe flexing her drawing skillz 💅💅"
+    },
+    {
+      "image": "memory-20260906-083818-387851.jpg",
+      "date": "2026-09-06",
+      "description": "We trespasseed into the sg city gallery 💅💅"
+    },
+    {
+      "image": "memory-20260906-084233-213738.jpg",
+      "date": "2026-08-26",
+      "description": "Babe in bali sending me pictures of her adventures :)"
+    },
+    {
+      "image": "memory-20260906-152141-190674.jpg",
+      "date": "2026-08-20",
+      "description": "Hehe imma gonna carry her around :)"
+    },
+    {
+      "image": "memory-20260819-053003-745768.jpg",
+      "date": "2026-08-18",
+      "description": "We go jim"
+    },
+    {
+      "image": "memory-20260906-152115-207134.jpg",
+      "date": "2026-08-16",
+      "description": "We built a villager trading market! :)"
+    },
+    {
+      "image": "memory-20260819-052901-732621.jpg",
+      "date": "2026-08-16",
+      "description": "GOOD KOREAN @Janchi"
+    },
+    {
+      "image": "memory-20260819-052641-240637.jpg",
+      "date": "2026-08-16",
+      "description": "1st german class! Bb pick me up!!!"
+    },
+    {
+      "image": "memory-20260906-152042-431548.jpg",
+      "date": "2026-08-10",
+      "description": "look at the pretty garden babe built omgg"
+    },
+    {
+      "image": "memory-20260906-151956-289366.jpg",
+      "date": "2026-08-09",
+      "description": "the house is soooo gorgeous with shaders :0"
+    },
+    {
+      "image": "memory-20260906-151854-762397.jpg",
+      "date": "2026-08-09",
+      "description": "The house is completed :) so pretty in a distance"
+    },
+    {
+      "image": "memory-20260819-054521-164643.jpg",
+      "date": "2026-08-09",
+      "description": "Holy shit food SLAPS"
+    },
+    {
+      "image": "memory-20260819-054134-631751.jpg",
+      "date": "2026-08-09",
+      "description": "Majulah Singapura 🇸🇬 rawr ;)"
+    },
+    {
+      "image": "memory-20260819-053818-720352.jpg",
+      "date": "2026-08-08",
+      "description": "Pickleballl 🥵"
+    },
+    {
+      "image": "memory-20260906-151812-267543.jpg",
+      "date": "2026-08-06",
+      "description": "We're starting our minecraft world! Building house in progress :))"
+    },
+    {
+      "image": "memory-20260819-054934-070318.jpg",
+      "date": "2026-08-04",
+      "description": ":) i love you reagan"
+    },
+    {
+      "image": "memory-20260804-060453-233319.jpg",
+      "date": "2026-08-02",
+      "description": "Met this cool curator and got a personal tour! 🦦🕊"
+    },
+    {
+      "image": "memory-20260804-060353-287767.jpg",
+      "date": "2026-08-02",
+      "description": "We going zooooooo 🦦🦦"
+    },
+    {
+      "image": "memory-20260819-054812-035010.jpg",
+      "date": "2026-07-26",
+      "description": "Food good"
+    },
+    {
+      "image": "memory-20260819-054717-786588.jpg",
+      "date": "2026-07-26",
+      "description": "Slay kween"
+    },
+    {
+      "image": "memory-20260804-060542-893425.jpg",
+      "date": "2026-07-26",
+      "description": "Bb learning 🚲"
+    },
+    {
+      "image": "memory-20260804-060635-589739.jpg",
+      "date": "2026-07-18",
+      "description": "what the hellie"
+    },
+    {
+      "image": "memory-20260703-162637-387333.jpg",
+      "date": "2026-07-04",
+      "description": "Hmmm"
+    },
+    {
+      "image": "memory-20260703-162611-831732.jpg",
+      "date": "2026-07-04",
+      "description": "Uhh"
+    },
+    {
+      "image": "memory-20260630-145519-469128.jpg",
+      "date": "2026-06-29",
+      "description": "Byebye KL!"
+    },
+    {
+      "image": "memory-20260630-145359-875947.jpg",
+      "date": "2026-06-29",
+      "description": "Nightmare"
+    },
+    {
+      "image": "memory-20260630-145311-167022.jpg",
+      "date": "2026-06-28",
+      "description": "Reagan peeled prawn for me"
+    },
+    {
+      "image": "memory-20260630-145234-915411.jpg",
+      "date": "2026-06-28",
+      "description": "Super Blonde changed our lives…"
+    },
+    {
+      "image": "memory-20260629-104922-458844.jpg",
+      "date": "2026-06-28",
+      "description": "Pilates yassss"
+    },
+    {
+      "image": "memory-20260630-144935-496062.jpg",
+      "date": "2026-06-27",
+      "description": "KL TIME! FUN PLAY"
+    },
+    {
+      "image": "memory-20260629-104715-120780.jpg",
+      "date": "2026-06-27",
+      "description": "First meal in KL!"
+    },
+    {
+      "image": "memory-20260629-104630-555421.jpg",
+      "date": "2026-06-27",
+      "description": "OFF TO DINNER ! Day 1"
+    },
+    {
+      "image": "memory-20260619-113356-459628.jpg",
+      "date": "2026-06-19",
+      "description": "Cute bb sending me off at aeropuerto 🗣🗣"
+    },
+    {
+      "image": "memory-20260621-040814-894231.jpg",
+      "date": "2026-06-18",
+      "description": "Stabbing babe :o"
+    },
+    {
+      "image": "memory-20260621-040908-301609.mov",
+      "date": "2026-06-17",
+      "description": "Hot dog 🌭"
+    },
+    {
+      "image": "memory-20260610-080318-635316.jpg",
       "date": "2026-06-07",
-      "description": "Cable carrr goes vroom vroom 🗣"
+      "description": "Also alchemist is hella good"
     },
     {
       "image": "memory-20260610-080246-731910.jpg",
@@ -20,9 +265,9 @@ export default {
       "description": "Big muaks~ we watched scary movie 6 but kinda ass but its ok cuz audrey was w me :)"
     },
     {
-      "image": "memory-20260610-080318-635316.jpg",
+      "image": "memory-20260610-080117-272880.jpg",
       "date": "2026-06-07",
-      "description": "Also alchemist is hella good"
+      "description": "Cable carrr goes vroom vroom 🗣"
     },
     {
       "image": "memory-20260604-111358-558379.jpg",
