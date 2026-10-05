@@ -3,12 +3,14 @@ import Gallery from './components/Gallery'
 import Lightbox from './components/Lightbox'
 import FootstepTrail from './components/FootstepTrail'
 import Letter from './components/Letter'
+import DownloadLink from './components/DownloadLink'
 import './App.css'
 
 const baseUrl = import.meta.env.BASE_URL || '/'
+const offlineStory = window.__OFFLINE_STORY__
 const memoriesModuleUrl = `${baseUrl}media/memories.js`
 const cursorSettingsUrl = `${baseUrl}cursors/cursor-settings.json`
-const mediaUrl = (filename) => `${baseUrl}media/${filename}`
+const mediaUrl = (filename) => resolveAssetUrl(`media/${filename}`)
 const cursorThemeCookieName = 'babeilove_cursor_theme'
 
 const fallbackCursorSettings = {
@@ -54,11 +56,13 @@ const fallbackCursorSettings = {
 }
 
 async function loadMemories() {
+  if (offlineStory) return offlineStory.data
   const module = await import(/* @vite-ignore */ `${memoriesModuleUrl}?t=${Date.now()}`)
   return module.default
 }
 
 async function loadCursorSettings() {
+  if (offlineStory) return offlineStory.cursorSettings
   const response = await fetch(cursorSettingsUrl, { cache: 'no-store' })
   if (!response.ok) {
     throw new Error(`Failed to load cursor settings: HTTP ${response.status}`)
@@ -67,6 +71,7 @@ async function loadCursorSettings() {
 }
 
 function readCookie(name) {
+  if (offlineStory) return null
   const value = document.cookie
     .split('; ')
     .find((item) => item.startsWith(`${name}=`))
@@ -75,11 +80,13 @@ function readCookie(name) {
 }
 
 function writeCookie(name, value) {
+  if (offlineStory) return
   document.cookie = `${name}=${encodeURIComponent(value)}; max-age=31536000; path=/; SameSite=Lax`
 }
 
 function resolveAssetUrl(path) {
   if (!path) return ''
+  if (offlineStory) return offlineStory.assets[path.replace(/^\/+/, '')] || ''
   if (/^https?:\/\//.test(path)) return path
   return `${baseUrl}${path.replace(/^\/+/, '')}`
 }
@@ -308,6 +315,7 @@ function App() {
   return (
     <div className="app">
       <Letter />
+      {!offlineStory && <DownloadLink />}
       {/* Parallax Background */}
       <div className="parallax-bg">
         {/* Light streams */}

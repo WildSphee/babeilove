@@ -8,3 +8,5 @@ coverage/
 __pycache__/
 *.pyc
 venv/
+/our-love-story.html
+/our-love-story.html.tmp

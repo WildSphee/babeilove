@@ -1,0 +1,6 @@
+.download-trigger {
+  right: calc(max(1rem, env(safe-area-inset-right)) + 4rem);
+  text-decoration: none;
+}
+
+.download-trigger:disabled { opacity: 0.5; }
