@@ -1,7 +1,7 @@
 export default {
   "config": {
     "title": "Our Love Story",
-    "subtitle": "Hey babe, lets do a little walk down on memory lane with me and see how far we'd come :)",
+    "subtitle": "Thanks for the amazing memories - ",
     "footnote": "Here's to another amazing year with you<br>know it hasn't been easy, thanks for giving us all :)<br>Love you always - Reagan",
     "relationshipStart": {
       "date": "2025-12-14",
@@ -9,6 +9,16 @@ export default {
     }
   },
   "memories": [
+    {
+      "image": "memory-20261005-140843-676826.jpg",
+      "date": "2026-10-03",
+      "description": "Back to where it all started. @cafe Romme. \n\nThank you for the memories Reagan :) it was a great run"
+    },
+    {
+      "image": "memory-20260921-032804-273322.jpg",
+      "date": "2026-09-16",
+      "description": "BABE ALSO MADE STICKERS FOR US OMG"
+    },
     {
       "image": "memory-20260915-090105-812987.jpg",
       "date": "2026-09-15",
@@ -55,6 +65,11 @@ export default {
       "description": "BUBS GAVE ME ROSE"
     },
     {
+      "image": "memory-20260906-084047-077007.jpg",
+      "date": "2026-09-06",
+      "description": "We go cafe and babe flexing her drawing skillz 💅💅"
+    },
+    {
       "image": "memory-20260906-153634-839201.jpg",
       "date": "2026-09-06",
       "description": "來又如風~"
@@ -78,11 +93,6 @@ export default {
       "image": "memory-20260906-152257-559130.jpg",
       "date": "2026-09-06",
       "description": "\"I finally rest. And watch the sun rise on a grateful universe. The hardest choices require the strongest wills\" - thanos"
-    },
-    {
-      "image": "memory-20260906-084047-077007.jpg",
-      "date": "2026-09-06",
-      "description": "We go cafe and babe flexing her drawing skillz 💅💅"
     },
     {
       "image": "memory-20260906-083818-387851.jpg",
