@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Gallery from './components/Gallery'
 import Lightbox from './components/Lightbox'
 import FootstepTrail from './components/FootstepTrail'
+import Letter from './components/Letter'
 import './App.css'
 
 const baseUrl = import.meta.env.BASE_URL || '/'
@@ -223,12 +224,12 @@ function App() {
 
     const calculateTimeTogether = () => {
       const { date, time } = config.relationshipStart
-      const [hours, minutes] = time.split(':').map(Number)
-      const startDate = new Date(date)
-      startDate.setHours(hours, minutes, 0, 0)
+      const startDate = new Date(`${date}T${time}:00`)
 
-      const now = new Date()
-      const diff = now - startDate
+      const endDate = config.relationshipEnded
+        ? new Date(`${config.relationshipEnded.date}T${config.relationshipEnded.time}:00`)
+        : new Date()
+      const diff = endDate - startDate
 
       if (diff < 0) {
         setTimeTogether({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -244,6 +245,7 @@ function App() {
     }
 
     calculateTimeTogether()
+    if (config.relationshipEnded) return
     const interval = setInterval(calculateTimeTogether, 1000)
 
     return () => clearInterval(interval)
@@ -305,6 +307,7 @@ function App() {
 
   return (
     <div className="app">
+      <Letter />
       {/* Parallax Background */}
       <div className="parallax-bg">
         {/* Light streams */}
@@ -402,6 +405,18 @@ function App() {
                   <span className="time-label">seconds</span>
                 </div>
               </div>
+              {config?.relationshipStart && config?.relationshipEnded && (
+                <p className="relationship-dates" aria-label="Our time together">
+                  <time dateTime={config.relationshipStart.date}>
+                    {new Date(`${config.relationshipStart.date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </time>
+                  <span aria-hidden="true"> — </span>
+                  <span className="date-range-to">to </span>
+                  <time dateTime={config.relationshipEnded.date}>
+                    {new Date(`${config.relationshipEnded.date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </time>
+                </p>
+              )}
             </div>
           </div>
           <div className="scroll-hint">

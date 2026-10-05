@@ -1,0 +1,231 @@
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/caveat/Caveat.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.letter-trigger {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid #dbc8ce;
+  border-radius: 2rem;
+  background: #fff9f5e8;
+  color: #805464;
+  font: inherit;
+  font-size: 0.9rem;
+  box-shadow: 0 3px 18px #80546412;
+}
+
+.letter-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: max(4rem, env(safe-area-inset-top), env(safe-area-inset-bottom)) 1rem;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: #694c47;
+}
+
+.letter-dialog[open] {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  animation: letter-appear 350ms ease both;
+}
+
+.letter-dialog::backdrop {
+  background: #392d3b80;
+  backdrop-filter: blur(9px);
+}
+
+.letter-close {
+  position: absolute;
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  border: 1px solid #fff5;
+  border-radius: 50%;
+  background: #fff2;
+  color: #fff8f0;
+  font-size: 1.8rem;
+  z-index: 10;
+}
+
+.letter-stage {
+  position: relative;
+  width: min(660px, 100%);
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+}
+
+.letter-envelope {
+  position: relative;
+  width: min(480px, 90%);
+  aspect-ratio: 1.65;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #805464;
+  perspective: 1200px;
+  filter: drop-shadow(0 20px 30px #21161f33);
+  transition: transform 900ms 650ms ease, opacity 600ms 1s ease;
+}
+
+.letter-envelope-back,
+.letter-envelope-front,
+.letter-envelope-flap,
+.letter-envelope-insert {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+}
+
+.letter-envelope-back { background: #cfaca4; }
+.letter-envelope-insert { inset: 7% 5%; background: #fff9ef; }
+
+.letter-envelope-front {
+  z-index: 2;
+  background: linear-gradient(145deg, #f0d9cf, #e6c2b7);
+  clip-path: polygon(0 0, 50% 48%, 100% 0, 100% 100%, 0 100%);
+}
+
+.letter-envelope-flap {
+  z-index: 3;
+  background: linear-gradient(#f5e0d6, #e1bab0);
+  clip-path: polygon(0 0, 100% 0, 50% 55%);
+  transform-origin: top;
+  transition: transform 750ms ease;
+  backface-visibility: hidden;
+}
+
+.letter-envelope-seal {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  z-index: 4;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px double #b87c88;
+  background: #a86575;
+  box-shadow: 0 3px 6px #694c4730;
+  color: #ffe8de;
+  font-size: 28px;
+  transition: opacity 250ms;
+}
+
+.letter-envelope-label {
+  position: absolute;
+  z-index: 3;
+  bottom: 10%;
+  left: 0;
+  width: 100%;
+  font: 36px 'Caveat', cursive;
+}
+
+.is-unfolded .letter-envelope-flap { transform: rotateX(180deg); }
+.is-unfolded .letter-envelope-seal { opacity: 0; }
+.is-unfolded .letter-envelope { transform: translateY(100px) scale(0.9); opacity: 0; pointer-events: none; }
+
+.letter-paper-position {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: letter-emerge 1.5s ease both;
+}
+
+.letter-paper {
+  position: relative;
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  background: linear-gradient(180deg, transparent 33%, #b2997d18 33.2%, transparent 33.6%, transparent 66%, #b2997d18 66.2%, transparent 66.6%), #fff9ef;
+  border: 1px solid #e6d8c5;
+  border-radius: 3px;
+  box-shadow: 0 25px 70px #251b2738;
+  pointer-events: auto;
+}
+
+.letter-writing {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(20px, 3vw, 26px);
+  line-height: 1.35;
+  font-weight: 400;
+  animation: letter-appear 600ms 1.8s ease both;
+}
+
+.letter-writing p + p { margin-top: 0.65em; }
+.letter-greeting { font-size: 1.25em; }
+.letter-signoff { padding-top: 0.35em; }
+
+.letter-folds {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.letter-fold {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: #f3e9da;
+  pointer-events: none;
+  backface-visibility: hidden;
+  animation: letter-unfold 900ms 1.2s ease both;
+}
+
+.letter-fold-top { top: 0; transform-origin: top; }
+.letter-fold-bottom { top: 50%; transform-origin: bottom; animation-delay: 1.5s; }
+
+.letter-trigger:focus-visible,
+.letter-close:focus-visible,
+.letter-envelope:focus-visible,
+.letter-paper:focus-visible {
+  outline: 3px solid #c18da0;
+  outline-offset: 6px;
+}
+
+@keyframes letter-appear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes letter-emerge {
+  0%, 25% { opacity: 0; transform: translateY(60px) scale(0.65); }
+  55% { opacity: 1; transform: translateY(-40px) scale(0.8); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes letter-unfold {
+  0% { transform: perspective(1000px) rotateX(0); opacity: 1; }
+  100% { transform: perspective(1000px) rotateX(100deg); opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-dialog *, .letter-dialog[open] {
+    animation-delay: 0s !important;
+    transition-delay: 0s !important;
+  }
+}

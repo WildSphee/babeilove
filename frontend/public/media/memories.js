@@ -1,11 +1,15 @@
 export default {
   "config": {
     "title": "Our Love Story",
-    "subtitle": "Thanks for the amazing memories - ",
-    "footnote": "Here's to another amazing year with you<br>know it hasn't been easy, thanks for giving us all :)<br>Love you always - Reagan",
+    "subtitle": "",
+    "footnote": "A good journey we'd had, I hope someday we can look back at this with only joy<br>I really, truly wish you well - Reagan",
     "relationshipStart": {
       "date": "2025-12-14",
       "time": "21:14"
+    },
+    "relationshipEnded": {
+      "date": "2026-10-03",
+      "time": "12:10"
     }
   },
   "memories": [
